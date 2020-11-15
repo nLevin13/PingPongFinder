@@ -1,6 +1,6 @@
 # How to install PingPongFinder package:  
 ## Set up a new catkin_workspace  
-$ mkdir -r ~/ros_workspaces/project/src  
+$ mkdir -p ~/ros_workspaces/project/src  
 $ cd ~/ros_workspaces/project/src  
 $ catkin_init_workspace  
 $ git clone <THIS REPO>  
