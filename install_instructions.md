@@ -22,3 +22,5 @@ $ git checkout indigo-devel
 Install navigation, https://github.com/ros-planning/navigation/tree/kinetic-devel  
 $ git checkout kinetic-devel  
 
+use catkin_make_isolated from now on
+
