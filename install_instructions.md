@@ -5,6 +5,7 @@ $ cd ~/ros_workspaces/project/src
 $ catkin_init_workspace  
 $ git clone <THIS REPO>  
 $ git clone https://github.com/stdr-simulator-ros-pkg/stdr_simulator.git  
+  Copy stdr_teleop package from lab 4 to here
 $ cd ~/ros_workspaces/project  
 $ catkin_make  
 $ source devel/setup.bash  
