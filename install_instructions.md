@@ -11,3 +11,14 @@ $ catkin_make
 $ source devel/setup.bash  
 
 Now, STDR should be properly installed on your machine. Try 
+
+
+
+KYLES NOTES
+For AMCL:
+
+Install geometry2, https://github.com/ros/geometry2/tree/indigo-devel
+> git checkout indigo-devel
+Install navigation, https://github.com/ros-planning/navigation/tree/kinetic-devel
+> git checkout kinetic-devel
+
