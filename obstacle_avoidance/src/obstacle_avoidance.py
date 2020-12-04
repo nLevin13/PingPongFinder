@@ -17,6 +17,11 @@ class RobotObsDetect:
 		self.laser_topic = "/" + robot_name + "/laser_0"
 		self.goal_topic = "/" + robot_name + "/goal"
 
+		print(self.odom_topic)
+		print(self.laser_topic)
+		print(self.goal_topic)
+
+
 		""" Localization params """
 		self.location = None
 		self.original_map_data = None
@@ -34,6 +39,8 @@ class RobotObsDetect:
 		self.ang_max = None
 		self.ang_inc = None
 
+		self.confidence_threshold = 2
+
 		self.initialize_map(map_path)
 
 	def initialize_map(self, map_path):
@@ -42,11 +49,10 @@ class RobotObsDetect:
 		self.width_x = len(self.obs_map_data[0])
 		self.height_y = len(self.obs_map_data)
 
-		print(self.obs_map_data)
 
 		### FOR TESTING ###
 		### PLEASE REMOVE ###
-		self.update_map(1, 2)
+		# self.detect_obstacle()
 
 		
 	def odom_cbk(self, odom_msg):
@@ -83,7 +89,7 @@ class RobotObsDetect:
 	def detect_obstacle(self):
 		
 		""" retrieve laserscan data for rays directly in front of user """		
-		if self.scan == None or self.location == None or self.goal == None:
+		if self.scan == None or self.location == None: # or self.goal == None:
 			print("Not enough valid data to detect obstacle!")
 			return 1
 		
@@ -94,7 +100,7 @@ class RobotObsDetect:
 
 		confidence = 0
 		for dist in front_ranges:
-			confidence += math.abs(dist - avg_range)
+			confidence += abs(dist - avg_range)
 
 
 		if confidence >= self.confidence_threshold:
@@ -124,6 +130,8 @@ def listener():
     rospy.Subscriber(robot.odom_topic, Odometry, robot.odom_cbk)
     rospy.Subscriber(robot.laser_topic, LaserScan, robot.laser_cbk)
     rospy.Subscriber(robot.goal_topic, Pose, robot.goal_cbk)
+    rospy.sleep(5)
+    robot.detect_obstacle()
 
     # spin() simply keeps python from exiting until this node is stopped
     rospy.spin()
