@@ -1,10 +1,12 @@
 #!/usr/bin/env python
+from __future__ import division
 import rospy, png, math
 from std_msgs.msg import String
 from nav_msgs.msg import Odometry
 from sensor_msgs.msg import LaserScan
 from geometry_msgs.msg import Pose
 import numpy as np
+from PIL import Image
 
 class RobotObsDetect:
 	def __init__(self, robot_name, map_path):
@@ -17,14 +19,14 @@ class RobotObsDetect:
 
 		""" Localization params """
 		self.location = None
-		self.map = None
+		self.original_map_data = None
 
-		""" Map as PNG """
+		""" ObstacleMap as PNG """
 		self.data = None
 		self.width_x = None
 		self.height_y = None
-		self.rows = None
-		self.resolution = 0.2 # HARD-CODED. INSPECT MAP FILE AND UPDATE
+		self.obs_map_data = None
+		self.resolution = 0.02 # HARD-CODED. INSPECT MAP FILE AND UPDATE
 
 		""" LaserScan"""
 		self.scan = None
@@ -35,16 +37,18 @@ class RobotObsDetect:
 		self.initialize_map(map_path)
 
 	def initialize_map(self, map_path):
-		r = png.Reader(map_path)
-		data = r.asDirect()
-		self.width_x = data[0]
-		self.height_y = data[1]
+		img = Image.open(map_path)
+		self.obs_map_data = np.array(img)
+		self.width_x = len(self.obs_map_data[0])
+		self.height_y = len(self.obs_map_data)
 
+		print(self.obs_map_data)
 
-		self.info = data[3]
-		print(image_2d)
+		### FOR TESTING ###
+		### PLEASE REMOVE ###
+		self.update_map(1, 2)
 
-	
+		
 	def odom_cbk(self, odom_msg):
 		self.location = odom_msg
 
@@ -61,12 +65,20 @@ class RobotObsDetect:
 		obs_x_map = int(obs_x / self.resolution)
 		obs_y_map = int(obs_y / self.resolution)
 
-		new_rows = []
-		rownum = 0
-		colnum = 0
+		print(obs_x_map)
+		print(obs_y_map)
+
+		for i in range(-3, 4):
+			for j in range(-3, 4):	
+				assert(obs_y_map + j >= 0 and obs_y_map + j < self.height_y and obs_x_map + i >= 0 and obs_x_map < self.width_x)
+				self.obs_map_data[self.height_y - (obs_y_map + j)][obs_x_map + i] = [0, 0, 0, 255]
+
+		self.publish_map()
 		
-		## Place 3x3 obstacle on map, centered at obs_x_map, obs_y_map
-		
+	def publish_map(self):
+		print("publish map")
+		new_img = Image.fromarray(self.obs_map_data)
+		new_img.save("/home/kyletucker/ros_workspaces/project/src/stdr_simulator/stdr_resources/maps/sparse_obstacles_dynamic.png")
 
 	def detect_obstacle(self):
 		
