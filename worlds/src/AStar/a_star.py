@@ -238,25 +238,25 @@ def main(img_name):
     ox, oy = get_obstacle_array(img_name)
 
     #if show_animation:  # pragma: no cover
-    # """
+    #"""
     plt.plot(ox, oy, ".k")
     plt.plot(sx, sy, "og")
     plt.plot(gx, gy, "xb")
     plt.grid(True)
     plt.axis("equal")
-    # """
+    #"""
 
     a_star = AStarPlanner(ox, oy, grid_size, robot_radius)
     rx, ry = a_star.planning(sx, sy, gx, gy)
 
     #if show_animation:  # pragma: no cover
-    # """
+    #"""
     print(rx, ry)
     plt.plot(rx, ry, "-r")
     plt.pause(0.001)
     plt.show()
-    # """
-    mpsasc.main([rx[::-1], ry[::-1]], [ox, oy], [sx, sy], [gx, gy])
+    #"""
+    #mpsasc.main([rx[::-1], ry[::-1]], [ox, oy], [sx, sy], [gx, gy])
 
 
 if __name__ == '__main__':
