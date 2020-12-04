@@ -13,6 +13,8 @@ def publish_tf(msg):
     br = tf2_ros.TransformBroadcaster()
     t = geometry_msgs.msg.TransformStamped()
 
+    t.header.stamp = msg.header.stamp
+
     t.transform.translation.x = msg.pose.pose.position.x
     t.transform.translation.y = msg.pose.pose.position.y
     t.transform.translation.z = msg.pose.pose.position.z
@@ -24,13 +26,12 @@ def publish_tf(msg):
 
     
 
-    t.header.stamp = rospy.Time.now()
     t.header.frame_id = "map_static"
     t.child_frame_id = "odom"
 
     br.sendTransform(t)
     print("Transform sent")
-
+    print(t.transform)
 
     t.transform.translation.x = 0
     t.transform.translation.y = 0

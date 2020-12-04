@@ -26,5 +26,3 @@ robot:
             noise_specifications:
               noise_mean: 0.5
               noise_std: 0.05
-
-
