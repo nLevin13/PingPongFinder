@@ -51,6 +51,7 @@ class PongFinder:
 	def plan(self):
 		# Plan out new path to goal pose. Update self.poses. Reset self.cur_pose_num to get index of pose
 		# Update new final goal, if necessary. 
+		# Nir, your path planning
 		# self.status -> TURN or DRIVE_PID, based on self.drive_routine
 		return Status.PLAN
 
