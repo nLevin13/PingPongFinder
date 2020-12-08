@@ -7,7 +7,7 @@ from test import get_obstacle_array
 from sys import argv
 
 import model_predictive_speed_and_steer_control as mpsasc
-#show_animation = True
+show_animation = True
 
 class AStarPlanner:
 
@@ -77,15 +77,15 @@ class AStarPlanner:
             current = open_set[c_id]
 
             # show graph
-            #if show_animation:  # pragma: no cover
-            plt.plot(self.calc_grid_position(current.x, self.min_x),
-                     self.calc_grid_position(current.y, self.min_y), "xc")
-            # for stopping simulation with the esc key.
-            plt.gcf().canvas.mpl_connect('key_release_event',
-                                         lambda event: [exit(
-                                             0) if event.key == 'escape' else None])
-            if len(closed_set.keys()) % 10 == 0:
-                plt.pause(0.001)
+            if show_animation:  # pragma: no cover
+                plt.plot(self.calc_grid_position(current.x, self.min_x),
+                         self.calc_grid_position(current.y, self.min_y), "xc")
+                # for stopping simulation with the esc key.
+                plt.gcf().canvas.mpl_connect('key_release_event',
+                                             lambda event: [exit(
+                                                 0) if event.key == 'escape' else None])
+                if len(closed_set.keys()) % 10 == 0:
+                    plt.pause(0.001)
 
             if current.x == goal_node.x and current.y == goal_node.y:
                 print("Find goal")
@@ -237,27 +237,39 @@ def main(img_name):
     # set obstacle positions
     ox, oy = get_obstacle_array(img_name)
 
-    #if show_animation:  # pragma: no cover
+    if show_animation:  # pragma: no cover
     #"""
-    plt.plot(ox, oy, ".k")
-    plt.plot(sx, sy, "og")
-    plt.plot(gx, gy, "xb")
-    plt.grid(True)
-    plt.axis("equal")
+        plt.plot(ox, oy, ".k")
+        plt.plot(sx, sy, "og")
+        plt.plot(gx, gy, "xb")
+        plt.grid(True)
+        plt.axis("equal")
     #"""
 
     a_star = AStarPlanner(ox, oy, grid_size, robot_radius)
     rx, ry = a_star.planning(sx, sy, gx, gy)
 
-    #if show_animation:  # pragma: no cover
+    if show_animation:  # pragma: no cover
     #"""
-    print(rx, ry)
-    plt.plot(rx, ry, "-r")
-    plt.pause(0.001)
-    plt.show()
+        for i in range(len(rx)):
+            print(rx[i], ry[i])
+        plt.plot(rx, ry, "-r")
+        plt.pause(0.001)
+        plt.show()
     #"""
+
+    cornerpts = [[rx[0], ry[0]]]
+    dx, dy = rx[1] - rx[0], ry[1] - ry[0]
+    for i in range(2, len(rx)):
+        newdx, newdy = rx[i] - rx[i - 1], ry[i] - ry[i - 1]
+        if newdx != dx or newdy != dy:
+            cornerpts.append([rx[i - 1], ry[i - 1]])
+            dx, dy = newdx, newdy
+    cornerpts.append([rx[-1], ry[-1]])
+    return cornerpts[::-1]
+
     #mpsasc.main([rx[::-1], ry[::-1]], [ox, oy], [sx, sy], [gx, gy])
 
 
 if __name__ == '__main__':
-    main(argv[1])
+    cornerpts = main(argv[1])
