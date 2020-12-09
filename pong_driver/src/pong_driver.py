@@ -10,6 +10,7 @@ import rospy
 import tf2_ros
 import sys
 
+import pong_driver.msgs import DriveCmd
 from tf import transformations
 from nav_msgs.msg import Odometry
 from enum import Enum
@@ -31,7 +32,7 @@ def turn_naiive(target_frame):
 			if within_threshold(transform):
 				done = True
                 rospy.loginfo("Turning goal pose achieved. Sending success message to PongMaster.")
-				send_success_turn()
+				send_success()
                 cmd.linear.x = 0
                 cmd.angular.z = 0
             else:
@@ -114,8 +115,19 @@ def drive_PID(target_frame):
 			pass
 
 
-def drive_cmd_callback(tf_frame):
-	drive_PID(tf_frame)
+def drive_cmd_callback(drive_cmd):
+	# drive_cmd.cmd => 0 = PID, 1 = TURN, 2 = FWD
+	if drive_cmd.cmd == 0:
+		drive_PID(drive_cmd.target_frame)
+	elif drive_cmd.cmd == 1:
+		turn_naiive(drive_cmd.target_frame)
+	elif drive_cmd.cmd == 2:
+		drive_naiive(drive_cmd.target_frame)
+	return
+
+
+def obstacle_avoid_driver(target_frame):
+	turn_naiive(tf_frame)
 
 def turn_within_threshold(transform):
 	rot = transform.transform.rotation
@@ -137,6 +149,6 @@ def send_success():
 if __name__ == '__main__':
 	rospy.init_node('pong_driver', anonymous=True)
 	rospy.Subscriber('/robot0/odom', Odometry, odom_cbk)
-	rospy.Subscriber('/pong_master/robot0/drive_cmd', String, drive_cmd_callback)
+	rospy.Subscriber('/pong_master/robot0/drive_cmd', DriveCmd, drive_cmd_callback)
 
 	rospy.spin()

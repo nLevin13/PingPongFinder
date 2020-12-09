@@ -13,6 +13,7 @@ import sys
 from enum import Enum
 from geometry_msgs.msg import Twist
 from nav_msgs.msg import Odometry
+from pong_driver.msg import DriveCmd
 
 #Define the method which contains the main functionality of the node.
 
@@ -25,7 +26,7 @@ class Status(Enum):
 	UPDATE = 6
 	WAIT = 0
 
-class PongDriver:
+class PongMaster:
 
 	def __init__(self, map_path, drive_routine=1):
 		self.drive_routine = drive_routine
@@ -42,7 +43,10 @@ class PongDriver:
 
 		self.final_goal = None # Final overall goal pose.
 
-		self.drive_pub = rospy.Publisher("/robot0/drive_cmd")
+		self.cmd_pub = rospy.Publisher("/pong_master/robot0/drive_cmd", DriveCmd, queue_size=1)
+		
+		self.driver_status_topic
+		
 
 	def check_goal(self):
 		# Checks if we have enough metadata to navigate to the current goal.
@@ -63,8 +67,6 @@ class PongDriver:
 		return False
 
 
-	def odom_cbk(self, msg):
-		self.cur_loc = msg.pose.pose
 
 	def wait(self):
 		# Awaits commands on a rostopic. Perhaps waiting for the "go" button on the cmd line, or in event of error!
@@ -88,8 +90,8 @@ class PongDriver:
 				
 		# PUBLISH DRIVE CMD
 		# AWAIT CONFIRMATION BEFORE PROCEEDING
-
 		
+		self.publish_cmd(1)	
 
 
 		else:
@@ -101,15 +103,21 @@ class PongDriver:
 	def drive(self):
 		# Drive forward self.cur_goal.linear.x meters forward.
 		# self.status -> ADVANCE
+		self.publish_cmd(2)
+		msg = rospy.wait_for_message()
+
 
 	def drive_pid(self):
 		# Drive to self.cur_goal using unicycle PID
 		# self.status -> ADVANCE
+		self.publish_cmd(0)
+
 
 	def detect(self):
 		# Run obstacle detection and map update routine
 		# self.status -> UPDATE or DRIVE
-				
+		# CALL DETECTION ROSSERVICE				
+
 	def advance(self):
 		# Advance instance variables to next goal pose, listening for updates to final goal.
 		# Else, notify if goal is reached.
@@ -120,7 +128,7 @@ class PongDriver:
 		# Check for updates on both
 		# We must plan a new path on the new map, or towards the new goal.
 		# self.status -> PLAN
-		
+		# 	
 
 	def drive_loop(self):
 
@@ -161,14 +169,21 @@ class PongDriver:
 				rospy.loginfo("Updating map!")
 				self.update()
 
+
+	def publish_cmd(self, drive_command):
+		# Assuming that we have the correct goal poses initialized, 
+		# publish CMD to robot
+		
+		target_frame = 
+		self.cmd_pub.publish()
+
 # This is Python's sytax for a main() method, which is run by default
 # when exectued in the shell
 
 if __name__ == '__main__':
 	
-	pongDriver = PongDriver(map_path)
-	rospy.init_node('pong_driver', anyonymous=True)
-	rospy.Subscriber("/robot0/odom", Odometry, pongDriver.odom_cbk)
+	pongMaster = PongMaster(map_path)
+	rospy.init_node('pong_master', anyonymous=True)
 	rospy.spin()	
 
 
