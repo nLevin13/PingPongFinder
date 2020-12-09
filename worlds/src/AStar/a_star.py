@@ -6,6 +6,7 @@ from test import get_obstacle_array
 
 from sys import argv
 
+import model_predictive_speed_and_steer_control as mpsasc
 #show_animation = True
 
 class AStarPlanner:
@@ -228,48 +229,34 @@ def main(img_name):
     # start and goal position
     sx = 160.0  # [m]
     sy = 20.0  # [m]
-    gx = 66.0  # [m]
-    gy = 26.0  # [m]
+    gx = 30.0  # [m]
+    gy = 166.0  # [m]
     grid_size = 8.0  # [m]
     robot_radius = 4.0  # [m]
-    print('yes')
+    # print('yes')
     # set obstacle positions
     ox, oy = get_obstacle_array(img_name)
-    print('oh yes!')
-    """
-    for i in range(-10, 60):
-        ox.append(i)
-        oy.append(-10.0)
-    for i in range(-10, 60):
-        ox.append(60.0)
-        oy.append(i)
-    for i in range(-10, 61):
-        ox.append(i)
-        oy.append(60.0)
-    for i in range(-10, 61):
-        ox.append(-10.0)
-        oy.append(i)
-    for i in range(-10, 40):
-        ox.append(20.0)
-        oy.append(i)
-    for i in range(0, 40):
-        ox.append(40.0)
-        oy.append(60.0 - i)
-    """
+
     #if show_animation:  # pragma: no cover
+    #"""
     plt.plot(ox, oy, ".k")
     plt.plot(sx, sy, "og")
     plt.plot(gx, gy, "xb")
     plt.grid(True)
     plt.axis("equal")
+    #"""
 
     a_star = AStarPlanner(ox, oy, grid_size, robot_radius)
     rx, ry = a_star.planning(sx, sy, gx, gy)
 
     #if show_animation:  # pragma: no cover
+    #"""
+    print(rx, ry)
     plt.plot(rx, ry, "-r")
     plt.pause(0.001)
     plt.show()
+    #"""
+    #mpsasc.main([rx[::-1], ry[::-1]], [ox, oy], [sx, sy], [gx, gy])
 
 
 if __name__ == '__main__':
