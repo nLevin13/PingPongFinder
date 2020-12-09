@@ -31,8 +31,9 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # The desired reverberation time and dimensions of the room
-    rt60_tgt = 0.3  # seconds
+    rt60_tgt = 0.166  # seconds, original was 0.3
     room_dim = [10, 10, 3.5]  # meters
+    #room_dim = [5, 5, 3]
 
     # import a mono wavfile as the source signal
     # the sampling frequency should match that of the room
@@ -57,15 +58,24 @@ if __name__ == "__main__":
         )
 
     # place the source in the room
-    src_loc = [5, 5, 1]
+    #src_loc = [5, 5, 1]
+    src_loc = [6, 7, 0]
+
     room.add_source(src_loc, signal=audio, delay=0.5)
 
     # define the locations of the microphones
+    """
     mic1_loc = [0.5, 0.5, 1]
     mic2_loc = [9.5, 9.5, 1]
     mic3_loc = [5, 9.5, 1]
+    """
+    mic1_loc = [0, 0, 0] #[0, 0, 2.5]
+    mic2_loc = [10, 0, 0] #[10, 0, 2.5]
+    mic3_loc = [0, 10, 0] #[0, 10, 2.5]
+    mic4_loc = [10, 10, 0] #[10, 10, 2.5]
+
     mic_locs = np.c_[
-        mic1_loc, mic2_loc, mic3_loc # mic 1  # mic 2 # mic 3
+        mic1_loc, mic2_loc, mic3_loc, mic4_loc # mic 1  # mic 2 # mic 3
     ]
 
     # finally place the array in the room
@@ -104,21 +114,27 @@ if __name__ == "__main__":
     plt.tight_layout()
     plt.show()
     """
-    #print(len(room.mic_array.signals[1, :]))
-    #print(len(detect_peaks(room.mic_array.signals[1, :])))
-    print(max(detect_peaks(room.mic_array.signals[0, :], mph=0, mpd=1000, threshold=10, show=False)))
-    print(max(detect_peaks(room.mic_array.signals[1, :], mph=0, mpd=1000, threshold=10, show=False)))
-    print(max(detect_peaks(room.mic_array.signals[2, :], mph=0, mpd=1000, threshold=10, show=False)))
-    print(max(room.mic_array.signals[0, :]))
-    print(max(room.mic_array.signals[1, :]))
-    print(max(room.mic_array.signals[2, :]))
+    print(fs)
     detect_peaks(room.mic_array.signals[0, :], mph=0, mpd=1000, threshold=10, show=True)
     detect_peaks(room.mic_array.signals[1, :], mph=0, mpd=1000, threshold=10, show=True)
     detect_peaks(room.mic_array.signals[2, :], mph=0, mpd=1000, threshold=10, show=True)
-    I1 = max(detect_peaks(room.mic_array.signals[0, :], mph=0, mpd=1000, threshold=10, show=False))
-    I2 = max(detect_peaks(room.mic_array.signals[1, :], mph=0, mpd=1000, threshold=10, show=False))
-    I3 = max(detect_peaks(room.mic_array.signals[2, :], mph=0, mpd=1000, threshold=10, show=False))
+    detect_peaks(room.mic_array.signals[3, :], mph=0, mpd=1000, threshold=10, show=True)
+    
+    I1 = max(room.mic_array.signals[0, :])
+    I2 = max(room.mic_array.signals[1, :])
+    I3 = max(room.mic_array.signals[2, :])
+    I4 = max(room.mic_array.signals[3, :])
+    
 
+    i1 = np.where(room.mic_array.signals[0, :] == I1)[0][0]
+    i2 = np.where(room.mic_array.signals[1, :] == I2)[0][0]
+    i3 = np.where(room.mic_array.signals[2, :] == I3)[0][0]
+    i4 = np.where(room.mic_array.signals[3, :] == I4)[0][0]
+    print("SRC's: " + str(src_loc))
+    print(I1, I2, I3, I4)
+    print(i1, i2, i3, i4)
+
+    """
     def func12(x):
         return (((x[0]-mic1_loc[0])**2 + (x[1]-mic1_loc[1])**2) - I2*((x[0]-mic2_loc[0])**2 + (x[1]-mic2_loc[1])**2)/I1)
 
@@ -132,7 +148,7 @@ if __name__ == "__main__":
     step_size = 0.0008
     x_curr = [5, 6] #starting point
     #Now iterating to find point of intersection of circles 1 and 2
-    """
+    
     f_curr = func12(x_curr)
     while abs(f_curr) > 0.01:
         print(1, x_curr, f_curr)
@@ -170,8 +186,9 @@ if __name__ == "__main__":
         else:
             x_curr += step_size * grad31
         f_curr = func31(x_curr)
-    """
+    
     src_est = x_curr
 
     print("Source location: " + str(src_loc))
     print("Source estimate: " + str(src_est))
+    """
