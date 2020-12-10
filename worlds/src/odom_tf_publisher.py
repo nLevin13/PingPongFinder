@@ -33,21 +33,6 @@ def publish_tf(msg):
     print("Transform sent")
     print(t.transform)
 
-    t.transform.translation.x = 0
-    t.transform.translation.y = 0
-    t.transform.translation.z = 0
-
-    t.transform.rotation.x = 0
-    t.transform.rotation.y = 0
-    t.transform.rotation.z = 0
-    t.transform.rotation.w = 1
-
-    t.header.stamp = rospy.Time.now()
-    t.header.frame_id = "odom"
-    t.child_frame_id = "robot0"
-
-    br.sendTransform(t)
-
     rospy.sleep(.1)
     
 

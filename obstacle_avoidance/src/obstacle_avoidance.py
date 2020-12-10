@@ -15,12 +15,6 @@ class RobotObsDetect:
 		self.robot_name = robot_name
 		self.odom_topic = "/" + robot_name + "/odom"
 		self.laser_topic = "/" + robot_name + "/laser_0"
-		self.goal_topic = "/" + robot_name + "/goal"
-
-		print(self.odom_topic)
-		print(self.laser_topic)
-		print(self.goal_topic)
-
 
 		""" Localization params """
 		self.location = None
@@ -42,6 +36,7 @@ class RobotObsDetect:
 		self.confidence_threshold = 2
 
 		self.initialize_map(map_path)
+		self.status_pub = rospy.Publisher('/obstacle_avoid/pong_master/status', String, queue_size=1)
 
 	def initialize_map(self, map_path):
 		img = Image.open(map_path)
@@ -64,8 +59,6 @@ class RobotObsDetect:
 		self.ang_max = laser_msg.angle_max
 		self.ang_inc = laser_msg.angle_increment
 
-	def goal_cbk(self, goal_msg):
-		self.goal = goal_msg
 
 	def update_map(self, obs_x, obs_y):
 		obs_x_map = int(obs_x / self.resolution)
@@ -85,6 +78,7 @@ class RobotObsDetect:
 		print("publish map")
 		new_img = Image.fromarray(self.obs_map_data)
 		new_img.save("/home/kyletucker/ros_workspaces/project/src/stdr_simulator/stdr_resources/maps/sparse_obstacles_dynamic.png")
+		self.send_success()
 
 	def detect_obstacle(self):
 		
@@ -116,6 +110,13 @@ class RobotObsDetect:
 
 		self.update_map(obstacle_loc_x, obstacle_loc_y)
 
+	def cmd_cbk(self, msg):
+		if msg == "Detect":
+			self.detect_obstacle()
+	
+	def send_success(self):
+		self.status_pub.publish('Successs')
+
 
 def listener():
 
@@ -129,7 +130,7 @@ def listener():
 
     rospy.Subscriber(robot.odom_topic, Odometry, robot.odom_cbk)
     rospy.Subscriber(robot.laser_topic, LaserScan, robot.laser_cbk)
-    rospy.Subscriber(robot.goal_topic, Pose, robot.goal_cbk)
+	rospy.Subscriber('/pong_master/obstacle_avoid/cmd', String, robot.cmd_cbk)
     rospy.sleep(5)
     robot.detect_obstacle()
 
