@@ -4,7 +4,7 @@ import room_sim
 import intersections
 import matplotlib.pyplot as plt
 
-src_loc = [6, 8, 0]
+src_loc = [5, 5, 0]
 
 mic1_loc = [0, 0, 0] #[0, 0, 2.5]
 mic2_loc = [10, 0, 0] #[10, 0, 2.5]
@@ -23,10 +23,13 @@ p1, p2, p3, p4 = mic1_loc[:2], mic2_loc[:2], mic3_loc[:2], mic4_loc[:2]
 s = 343 # speed of sound in m/s
 
 def locate(p1, p2, p3, p4):
-	r1 = 0.1
+	r1 = 0.1#0.1
 	# 14.2 is the largest distance the sound could have possibly traveled
 	# ~ sqrt(10^2 + 10^2)
 	fig, ax = plt.subplots()
+	ax.set_xlim((0, 10))
+	ax.set_ylim((0, 10))
+	plt.plot(src_loc[0], src_loc[1], '.', color='g')
 	c = 1
 	found = False
 	x1, y1 = p1[0], p1[1]
@@ -49,9 +52,7 @@ def locate(p1, p2, p3, p4):
 		circle2 = plt.Circle((x2, y2), r2, color='b', fill=False)
 		circle3 = plt.Circle((x3, y3), r3, color='b', fill=False)
 		circle4 = plt.Circle((x4, y4), r4, color='b', fill=False)
-
-		ax.set_xlim((0, 10))
-		ax.set_ylim((0, 10))
+		
 		ax.add_artist(circle1)
 		ax.add_artist(circle2)
 		ax.add_artist(circle3)
@@ -112,7 +113,7 @@ def locate(p1, p2, p3, p4):
 			sorted_ints = PolygonSort(valid_ints)
 			area = PolygonArea(sorted_ints)
 			print(area)
-			if area < 3: # 0.4:
+			if area < 0.1: # 0.4:
 				found = True
 
 		plt.gca().set_aspect('equal', adjustable='box')
@@ -127,6 +128,7 @@ def locate(p1, p2, p3, p4):
 		c = abs(c - 1)
 	currarea = area
 	while currarea <= area:
+		print(currarea, area)
 		area = currarea
 		r2 = r1 - (t1 - t2) * s
 		r3 = r1 + (t3 - t1) * s
@@ -172,7 +174,8 @@ def locate(p1, p2, p3, p4):
 		sorted_ints = PolygonSort(valid_ints)
 		currarea = PolygonArea(sorted_ints)
 		print(area)
-		r1 += 0.01
+		r1 += 0.001
+		print('one iter')
 	r1 -= 0.01
 	r2 = r1 - (t1 - t2) * s
 	r3 = r1 + (t3 - t1) * s

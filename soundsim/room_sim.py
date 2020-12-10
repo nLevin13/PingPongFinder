@@ -78,13 +78,13 @@ def sim(src_loc, mic_locs, noise=False):
         bitdepth=np.int16,
     )
 
-    """
+    
     print(fs)
     detect_peaks(room.mic_array.signals[0, :], mph=0, mpd=1000, threshold=10, show=True)
     detect_peaks(room.mic_array.signals[1, :], mph=0, mpd=1000, threshold=10, show=True)
     detect_peaks(room.mic_array.signals[2, :], mph=0, mpd=1000, threshold=10, show=True)
     detect_peaks(room.mic_array.signals[3, :], mph=0, mpd=1000, threshold=10, show=True)
-    """
+    
     sig1 = room.mic_array.signals[0, :]
     sig2 = room.mic_array.signals[1, :]
     sig3 = room.mic_array.signals[2, :]
