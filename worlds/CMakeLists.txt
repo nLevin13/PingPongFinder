@@ -7,6 +7,17 @@ find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
   std_msgs
   tf2_ros
+  message_generation
+)
+
+add_service_files(
+  FILES
+  MapAndEndpts.srv
+)
+
+generate_messages(
+  DEPENDENCIES
+  geometry_msgs
 )
 
 catkin_package(
@@ -19,4 +30,5 @@ catkin_package(
     std_msgs
     tf2_ros
   DEPENDS
+    message_runtime
 )

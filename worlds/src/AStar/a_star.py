@@ -1,13 +1,15 @@
+#!/usr/bin/env python
 import math
-
-import matplotlib.pyplot as plt
-
+import matplotlib
+matplotlib.use('TkAgg')
+from matplotlib import pyplot as plt
 from test import get_obstacle_array
-
 from sys import argv
-
 import model_predictive_speed_and_steer_control as mpsasc
-#show_animation = True
+import rospy
+from worlds.srv import MapAndEndpts, MapAndEndptsResponse
+from geometry_msgs.msg import Pose2D
+show_animation = True
 
 class AStarPlanner:
 
@@ -77,15 +79,15 @@ class AStarPlanner:
             current = open_set[c_id]
 
             # show graph
-            #if show_animation:  # pragma: no cover
-            plt.plot(self.calc_grid_position(current.x, self.min_x),
-                     self.calc_grid_position(current.y, self.min_y), "xc")
-            # for stopping simulation with the esc key.
-            plt.gcf().canvas.mpl_connect('key_release_event',
-                                         lambda event: [exit(
-                                             0) if event.key == 'escape' else None])
-            if len(closed_set.keys()) % 10 == 0:
-                plt.pause(0.001)
+            if show_animation:  # pragma: no cover
+                plt.plot(self.calc_grid_position(current.x, self.min_x),
+                         self.calc_grid_position(current.y, self.min_y), "xc")
+                # for stopping simulation with the esc key.
+                plt.gcf().canvas.mpl_connect('key_release_event',
+                                             lambda event: [exit(
+                                                 0) if event.key == 'escape' else None])
+                if len(closed_set.keys()) % 10 == 0:
+                    plt.pause(0.001)
 
             if current.x == goal_node.x and current.y == goal_node.y:
                 print("Find goal")
@@ -223,41 +225,98 @@ class AStarPlanner:
         return motion
 
 
-def main(img_name):
+def main(s, g, img_name):
     print(__file__ + " start!!")
 
     # start and goal position
-    sx = 160.0  # [m]
-    sy = 20.0  # [m]
-    gx = 30.0  # [m]
-    gy = 166.0  # [m]
+    #sx = 160.0  # [m]
+    #sy = 20.0  # [m]
+    #gx = 30.0  # [m]
+    #gy = 166.0  # [m]
+    sx, sy = s
+    gx, gy = g
     grid_size = 8.0  # [m]
     robot_radius = 4.0  # [m]
     # print('yes')
     # set obstacle positions
     ox, oy = get_obstacle_array(img_name)
 
-    #if show_animation:  # pragma: no cover
+    if show_animation:  # pragma: no cover
     #"""
-    plt.plot(ox, oy, ".k")
-    plt.plot(sx, sy, "og")
-    plt.plot(gx, gy, "xb")
-    plt.grid(True)
-    plt.axis("equal")
+        plt.plot(ox, oy, ".k")
+        plt.plot(sx, sy, "og")
+        plt.plot(gx, gy, "xb")
+        plt.grid(True)
+        plt.axis("equal")
     #"""
 
     a_star = AStarPlanner(ox, oy, grid_size, robot_radius)
     rx, ry = a_star.planning(sx, sy, gx, gy)
 
-    #if show_animation:  # pragma: no cover
+    if show_animation:  # pragma: no cover
     #"""
-    print(rx, ry)
-    plt.plot(rx, ry, "-r")
-    plt.pause(0.001)
-    plt.show()
+        for i in range(len(rx)):
+            print(rx[i], ry[i])
+        plt.plot(rx, ry, "-r")
+        plt.pause(0.001)
+        plt.show()
+    #"""
+
+    """
+    cornerpts = [[rx[0], ry[0]]]
+    dx, dy = rx[1] - rx[0], ry[1] - ry[0]
+    for i in range(2, len(rx)):
+        newdx, newdy = rx[i] - rx[i - 1], ry[i] - ry[i - 1]
+        if newdx != dx or newdy != dy:
+            cornerpts.append([rx[i - 1], ry[i - 1]])
+            dx, dy = newdx, newdy
+    cornerpts.append([rx[-1], ry[-1]])
+    return cornerpts[::-1]
+    """
+    cornerposes = [Pose2D(rx[0], ry[0], 0)]
+    dx, dy = rx[1] - rx[0], ry[1] - ry[0]
+    for i in range(2, len(rx)):
+        newdx, newdy = rx[i] - rx[i - 1], ry[i] - ry[i - 1]
+        if newdx != dx or newdy != dy:
+            newpose = Pose2D()
+            newpose.x, newpose.y = rx[i - 1], ry[i - 1]
+            newpose.theta = my_atan(dy, dx)
+            cornerposes.append(newpose)
+            dx, dy = newdx, newdy
+    cornerposes.append(Pose2D(rx[-1], ry[-1], my_atan(dy, dx)))
+    return cornerposes[::-1]
+
     #"""
     #mpsasc.main([rx[::-1], ry[::-1]], [ox, oy], [sx, sy], [gx, gy])
 
+def my_atan(y, x):
+    if x == 0:
+        if y > 0:
+            return math.pi / 2
+        else:
+            return -math.pi / 2
+    else:
+        return math.atan(y / x)
+
+def get_pose2D(point):
+    pose = Pose2D()
+    pose.x, pose.y = point
+    pose.theta = 0 # doesn't matter for now?
+    return pose
+
+def handle_path_find(req):
+    global show_animation
+    show_animation = False
+    cornerpts = main([req.start.x, req.start.y], [req.end.x, req.end.y], req.map_png_path)
+    # cornerpts = list(map(get_pose2D, cornerpts))
+    return MapAndEndptsResponse(cornerpts)
+
+def path_finding_server():
+    rospy.init_node('path_finding')
+    s = rospy.Service('path_find', MapAndEndpts, handle_path_find)
+    print('Ready to find paths')
+    rospy.spin()
 
 if __name__ == '__main__':
-    main(argv[1])
+    path_finding_server()
+    # cornerpts = main([float(argv[2]), float(argv[3])], [float(argv[4]), float(argv[5])], argv[1])
