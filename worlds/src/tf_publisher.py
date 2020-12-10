@@ -15,6 +15,7 @@ master_pub = rospy.Publisher('goal_tf_publisher/pong_master/status', String, que
 # status = 1: advance path (don't find new path)
 # status = 2: error
 def callback(tfcmd_msg):
+	return
 	rospy.loginfo('once')
 	print(tfcmd_msg)
 	global poses, curr_target
@@ -54,15 +55,35 @@ def tf_service_listener():
 	rospy.loginfo("Waiting for PongMaster")
 	data = rospy.wait_for_message('/pong_master/goal_tf_publisher/cmd', TFCmd)
 	rospy.loginfo("Initial goal received. Beginning initial path planning.")
-	
+	send_success()	
 	my_spin()	
 
+def test():
+	global poses, curr_target
+	rospy.init_node('tf_service_publisher', anonymous=True)
+	rospy.Subscriber('/pong_master/goal_tf_publisher/cmd', TFCmd, callback)
+	rospy.loginfo("Waiting for PongMaster")
+	data = rospy.wait_for_message('/pong_master/goal_tf_publisher/cmd', TFCmd)
+	
+	target = Pose2D()
+	target.x = 2
+	target.y = 2
+	target.theta = 0
+	poses.append(target)
+
+	
+	send_success()
+
+	curr_target = 0
+	my_spin()
+
 def my_spin():
-	broadcaster = tf2_ros.StaticTransformBroadcaster()
+	broadcaster = tf2_ros.TransformBroadcaster()
 	static_transformStamped = TransformStamped()
 
 	while not rospy.is_shutdown():
 		if curr_target >= 0:
+			rospy.loginfo("Publishing a target static transform.")
 			static_transformStamped.header.stamp = rospy.Time.now()
 			static_transformStamped.header.frame_id = "map"
 			static_transformStamped.child_frame_id = "target"
@@ -79,14 +100,22 @@ def my_spin():
 			static_transformStamped.transform.rotation.w = quat[3]
 	
 			broadcaster.sendTransform(static_transformStamped)
-	rospy.rostime.wallsleep(0.5)
+		rospy.sleep(0.5)
 
 def send_success():
-	master_pub.publish('Success')
+	rospy.sleep(.5)
+	msg = String()
+	msg.data = 'Success'
+	master_pub.publish(msg)
 
 def send_fail():
-	master_pub.publish('Failure')
+	rospy.sleep(.5)
+	msg = String()
+	msg.data = 'Failure'
+	master_pub.publish(msg)
 
 if __name__ == '__main__':
-	tf_service_listener()
+	test()
+
+	#tf_service_listener()
 

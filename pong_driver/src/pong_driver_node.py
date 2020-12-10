@@ -9,12 +9,14 @@
 import rospy
 import tf2_ros
 import sys
+import math
 
 from pong_driver.msg import DriveCmd
 from tf import transformations
 from nav_msgs.msg import Odometry
 from enum import Enum
 from geometry_msgs.msg import Twist
+from std_msgs.msg import String
 
 THRESHOLD = .25
 THRESHOLD_RAD = .1
@@ -22,13 +24,13 @@ THRESHOLD_RAD = .1
 def turn_naiive(target_frame):
 	pub = rospy.Publisher('robot0/cmd_vel', Twist, queue_size=3)
 	tfBuffer = tf2_ros.Buffer()
-	tfListender = tf2_ros.TransformListender(tfBuffer)
+	tfListener = tf2_ros.TransformListener(tfBuffer)
 	r = rospy.Rate(10)
 
 	done = False
 	while not done or not rospy.is_shutdown():
 		try:
-			transform = tfBuffer.lookup_transform('odom', target_frame, rospy.Time())
+			transform = tfBuffer.lookup_transform('robot0', target_frame, rospy.Time())
 			if within_threshold(transform):
 				done = True
 				rospy.loginfo("Turning goal pose achieved. Sending success message to PongMaster.")
@@ -46,18 +48,18 @@ def turn_naiive(target_frame):
 			send_failure()
 			done = True
 			pass
-
+		rospy.sleep(.1)
 
 def drive_naiive(target_frame):
 	pub = rospy.Publisher('robot0/cmd_vel', Twist, queue_size=3)
 	tfBuffer = tf2_ros.Buffer()
-	tfListener = tf2_ros.TransformListender(tfBuffer)
+	tfListener = tf2_ros.TransformListener(tfBuffer)
 	r = rospy.Rate(10)
 
 	done = False
 	while not done or not rospy.is_shutdown():
 		try:
-			transform = tfBuffer.lookup_transform('odom', target_frame, rospy.Time())
+			transform = tfBuffer.lookup_transform('robot0', target_frame, rospy.Time())
 			if turn_within_threshold(transform):
 				
 				rospy.loginfo("Driving goal pose achieved. Sending success message to PongMaster.")
@@ -70,19 +72,19 @@ def drive_naiive(target_frame):
 
 			pub.publish(cmd)
 
-
 		except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException):
 			rospy.loginfo("TF Exception encountered. Sending Failure.")
 			send_failure()
 			done = True
 			pass
-
+		
+		rospy.sleep(.1)
 
 
 def drive_PID(target_frame):
 	pub = rospy.Publisher('robot0/cmd_vel', Twist, queue_size=3)
 	tfBuffer = tf2_ros.Buffer()
-	tfListender = tf2_ros.TransformListender(tfBuffer)
+	tfListener = tf2_ros.TransformListener(tfBuffer)
 	r = rospy.Rate(10)
 	K1 = 0.3
 	K2 = 1.0
@@ -90,7 +92,7 @@ def drive_PID(target_frame):
 	done = False
 	while not done or not rospy.is_shutdown():
 		try:
-			transform = tfBuffer.lookup_transform('odom', target_frame, rospy.Time())
+			transform = tfBuffer.lookup_transform('robot0', target_frame, rospy.Time())
 			cmd = Twist()
 
 			if within_threshold(transform):
@@ -111,15 +113,21 @@ def drive_PID(target_frame):
 			send_failure()
 			done = True
 			pass
+		rospy.sleep(.1)
 
 
 def drive_cmd_callback(drive_cmd):
 	# drive_cmd.cmd => 0 = PID, 1 = TURN, 2 = FWD
+	rospy.loginfo("Drive command received.")
+	rospy.loginfo("target is %s", drive_cmd.target_frame)
 	if drive_cmd.cmd == 0:
+		rospy.loginfo("PID")
 		drive_PID(drive_cmd.target_frame)
 	elif drive_cmd.cmd == 1:
+		rostopic.loginfo("TURN")
 		turn_naiive(drive_cmd.target_frame)
 	elif drive_cmd.cmd == 2:
+		rostopic.loginfo("FWD")
 		drive_naiive(drive_cmd.target_frame)
 	return
 
@@ -134,19 +142,23 @@ def turn_within_threshold(transform):
 
 def within_threshold(transform):
 	error = (transform.transform.translation.x ** 2) + (transform.transform.translation.y ** 2)
-	return sqrt(error) < THRESHOLD
+	return math.sqrt(error) < THRESHOLD
 
 def send_failure():
 	pub = rospy.Publisher('/pong_driver/pong_master/cmd_status', String, queue_size=1)
-	pub.publish('Failure')
+	msg = String()
+	msg.data = 'Failure'
+	pub.publish(msg)
 
 def send_success():
 	pub = rospy.Publisher('/pong_driver/pong_master/cmd_status', String, queue_size=1)
-	pub.publish('Success')
+	msg = String()
+	msg.data = 'Success'
+	pub.publish(msg)
 
 if __name__ == '__main__':
+	rospy.loginfo("Initializing drive node.")
 	rospy.init_node('pong_driver', anonymous=True)
-	rospy.Subscriber('/robot0/odom', Odometry, odom_cbk)
 	rospy.Subscriber('/pong_master/pong_driver/drive_cmd', DriveCmd, drive_cmd_callback)
-
+	rospy.loginfo("Driver spinning!")
 	rospy.spin()

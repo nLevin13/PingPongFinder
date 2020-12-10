@@ -49,7 +49,7 @@ class PongMaster:
 		# self.cur_goal = None # Immediate goal pose. self.goal_poses[self.cur_pose_num]
 		self.dynamic_map_path = '/home/kyletucker/ros_workspaces/project/src/stdr_simulator/stdr_resources/maps/sparse_obstacles_dynamic.png'
 		self.nav_pub = rospy.Publisher("/pong_master/goal_tf_publisher/cmd", TFCmd, queue_size=1)
-		self.cmd_pub = rospy.Publisher("/pong_master/robot0/drive_cmd", DriveCmd, queue_size=1)
+		self.cmd_pub = rospy.Publisher("/pong_master/pong_driver/drive_cmd", DriveCmd, queue_size=1)
 		self.obs_pub = rospy.Publisher("/pong_master/obstacle_avoid/cmd", String, queue_size=1)
 
 	def wait(self):
@@ -80,7 +80,7 @@ class PongMaster:
 		pub.publish(cmd)
 		rospy.loginfo("Waiting for response...")
 		status = rospy.wait_for_message('/goal_tf_publisher/pong_master/status', String)
-		if status == 'Success':
+		if status.data == 'Success':
 			rospy.loginfo('Success. Proceeding with drive routine.')
 			if self.drive_routine == 0:
 				self.status = Status.DRIVE_PID
@@ -102,7 +102,7 @@ class PongMaster:
 		rospy.loginfo("Awaiting response from pong_driver.")
 		status = rospy.wait_for_message('/pong_driver/pong_master/cmd_status', String)
 
-		if status == 'Success':
+		if status.data == 'Success':
 			rospy.loginfo("Success. Status => DETECT")
 			# Good, move to detect state, no pose update
 			self.status = Status.DETECT
@@ -121,7 +121,7 @@ class PongMaster:
 		rospy.loginfo("Waiting for response.")
 		status = rospy.wait_for_message('/pong_driver/pong_master/cmd_status', String)
 		
-		if status == 'Success':
+		if status.data == 'Success':
 			rospy.loginfo("Success. Status => ADVANCE")
 			self.status = Status.ADVANCE
 		else:
@@ -135,7 +135,7 @@ class PongMaster:
 		rospy.loginfo("Waiting for response.")
 		status = rospy.wait_for_message('/pong_driver/pong_master/cmd_status', String)
 
-		if status == 'Success':
+		if status.data == 'Success':
 			rospy.loginfo("Success. Status => ADVANCE")
 			self.status = Status.ADVANCE
 		else:
@@ -145,14 +145,18 @@ class PongMaster:
 		# Run obstacle detection and map update routine
 		# self.status -> UPDATE or DRIVE
 		# CALL DETECTION ROSSERVICE	
-		rospy.loginfo("Sending detect command.")			
-		self.obs_pub.publish("Detect")
+		rospy.loginfo("Sending detect command.")
+		
+		cmd = String()
+		cmd.data = 'Detect'
+	
+		self.obs_pub.publish(cmd)
 		rospy.loginfo("Waiting for response.")
 		status = rospy.wait_for_message('/obstacle_avoid/pong_master/status', String)
-		if status == 'Obstacle':
+		if status.data == 'Obstacle':
 			rospy.loginfo("Obstacle detected. Updating map.")
 			self.status = Status.UPDATE
-		elif status == 'Clear':
+		elif status.data == 'Clear':
 			rospy.loginfo("No obstacles. Proceeding to DRIVE.")
 			self.status = Status.DRIVE
 
@@ -167,7 +171,7 @@ class PongMaster:
 
 		rospy.loginfo("Waiting for response.")
 		status = rospy.wait_for_message('/goal_tf_publisher/pong_master/status', String)
-		if status == 'Success':
+		if status.data == 'Success':
 			rospy.loginfo("Successful advancement. Proceeding.")
 			if self.drive_routine == 0:
 				# PID
@@ -193,7 +197,7 @@ class PongMaster:
 		self.nav_pub(cmd)
 		rospy.loginfo("Waiting for response.")
 		status = rospy.wait_for_message('/goal_tf_publisher/pong_master/status', String)
-		if status == 'Success':
+		if status.data == 'Success':
 			rospy.loginfo("Success. Proceeding.")
 			if self.drive_routine == 0:
 				self.status = Status.DRIVE_PID
@@ -204,42 +208,45 @@ class PongMaster:
 
 
 	def drive_loop(self):
+		try:
+			while not self.done:
 
-		while not self.done:
+				if self.status == Status.WAIT:
+					rospy.loginfo("Waiting.")
+					self.wait()
 
-			if self.status == Status.WAIT:
-				rospy.loginfo("Currently waiting at path pose (%d) out of (%d).", self.cur_pose_num, self.path_len)
-				self.wait()
+				elif self.status == Status.PLAN:
+					rospy.loginfo("Planning new path from (x=%.2f, y=%.2f) to (x=%.2f, y=%.2f).", 
+						self.start.x, self.start.y, self.end.x, self.end.y)
+					self.plan()
 
-			elif self.status == Status.PLAN:
-				rospy.loginfo("Planning new path from (x=%.2f, y=%.2f) to (x=%.2f, y=%.2f).", 
-					self.start.x, self.start.y, self.end.x, self.end.y)
-				self.plan()
+				elif self.status == Status.TURN:	
+					rospy.loginfo("Turning")
+					self.turn()
 
-			elif self.status == Status.TURN:	
-				rospy.loginfo("Turning (%.2f) radians.", self.cur_cmd.angular.z)
-				self.turn()
+				elif self.status == Status.DRIVE:
+					rospy.loginfo("Driving forward.")
+					self.drive()
 
-			elif self.status == Status.DRIVE:
-				rospy.loginfo("Driving (%.2f) meters forward.", self.cur_cmd.linear.x)
-				self.drive()
-
-			elif self.status == Status.DETECT:
-				rospy.loginfo("Detecting obstacles directly in front of me!")
-				self.detect()
+				elif self.status == Status.DETECT:
+					rospy.loginfo("Detecting obstacles directly in front of me!")
+					self.detect()
 			
-			elif self.status == Status.DRIVE_PID:
-				rospy.loginfo("Driving to (x=%.2f, y=%.2f) with PID control.", 
-					self.cur_goal.linear.x, self.cur_goal.linear.y)
-				self.drive_pid()
+				elif self.status == Status.DRIVE_PID:
+					rospy.loginfo("Driving to (x=%.2f, y=%.2f) with PID control.", 
+						self.end.x, self.end.y)
+					self.drive_pid()
 
-			elif self.status == Status.ADVANCE:
-				rospy.loginfo("Advancing to pose number (%d)", self.cur_pose_num + 1)
-				self.advance()
+				elif self.status == Status.ADVANCE:
+					rospy.loginfo("Advancing to next pose.")
+					self.advance()
 
-			elif self.status == Status.UPDATE:
-				rospy.loginfo("Updating map!")
-				self.update()
+				elif self.status == Status.UPDATE:
+					rospy.loginfo("Updating map!")
+					self.update()
+				rospy.sleep(1)
+		except(KeyboardInterrupt):
+			rospy.loginfo("Killing master.")
 
 
 	def publish_cmd(self, drive_command):

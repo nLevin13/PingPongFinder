@@ -112,14 +112,20 @@ class RobotObsDetect:
 		self.update_map(obstacle_loc_x, obstacle_loc_y)
 
 	def cmd_cbk(self, msg):
-		if msg == "Detect":
+		if msg.data == "Detect":
 			self.detect_obstacle()
 	
 	def send_obstacle(self):
-		self.status_pub.publish('Obstacle')
+		rospy.sleep(.5)
+		msg = String()
+		msg.data = 'Obstacle'
+		self.status_pub.publish(msg)
 
 	def send_clear(self):
-		self.status_pub.publish('Clear')
+		rospy.sleep(.5)
+		msg = String()
+		msg.data = 'Clear'
+		self.status_pub.publish(msg)
 
 def listener():
 
