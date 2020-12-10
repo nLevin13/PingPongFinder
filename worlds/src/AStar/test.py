@@ -5,7 +5,7 @@ from cv2 import imread, resize, imwrite
 
 def get_obstacle_array(img_name):
 	img = Image.open(img_name)
-	array = np.array(img)
+	array = np.array(img)[:,:,0]
 	ox, oy = [], []
 	for i in range(array.shape[0]):
 		for j in range(array.shape[1]):

@@ -235,8 +235,8 @@ def main(s, g, img_name):
     #gy = 166.0  # [m]
     sx, sy = s
     gx, gy = g
-    grid_size = 8.0  # [m]
-    robot_radius = 4.0  # [m]
+    grid_size = 20.0  # [m]
+    robot_radius = 16.0  # [m]
     # print('yes')
     # set obstacle positions
     ox, oy = get_obstacle_array(img_name)
@@ -273,6 +273,8 @@ def main(s, g, img_name):
     cornerpts.append([rx[-1], ry[-1]])
     return cornerpts[::-1]
     """
+    rx = rx[::-1]
+    ry = ry[::-1]
     cornerposes = [Pose2D(rx[0], ry[0], 0)]
     dx, dy = rx[1] - rx[0], ry[1] - ry[0]
     for i in range(2, len(rx)):
@@ -284,7 +286,7 @@ def main(s, g, img_name):
             cornerposes.append(newpose)
             dx, dy = newdx, newdy
     cornerposes.append(Pose2D(rx[-1], ry[-1], my_atan(dy, dx)))
-    return cornerposes[::-1]
+    return cornerposes
 
     #"""
     #mpsasc.main([rx[::-1], ry[::-1]], [ox, oy], [sx, sy], [gx, gy])
@@ -295,6 +297,8 @@ def my_atan(y, x):
             return math.pi / 2
         else:
             return -math.pi / 2
+    elif x < 0:
+        return math.atan(y / x) + math.pi
     else:
         return math.atan(y / x)
 
@@ -318,5 +322,5 @@ def path_finding_server():
     rospy.spin()
 
 if __name__ == '__main__':
-    path_finding_server()
-    # cornerpts = main([float(argv[2]), float(argv[3])], [float(argv[4]), float(argv[5])], argv[1])
+    # path_finding_server()
+    main([float(argv[2]), float(argv[3])], [float(argv[4]), float(argv[5])], argv[1])
