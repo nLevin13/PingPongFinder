@@ -5,7 +5,6 @@ matplotlib.use('TkAgg')
 from matplotlib import pyplot as plt
 from test import get_obstacle_array
 from sys import argv
-import model_predictive_speed_and_steer_control as mpsasc
 import rospy
 from worlds.srv import MapAndEndpts, MapAndEndptsResponse
 from geometry_msgs.msg import Pose2D
@@ -307,6 +306,7 @@ def get_pose2D(point):
 def handle_path_find(req):
     global show_animation
     show_animation = False
+    print(req.map_png_path)
     cornerpts = main([req.start.x, req.start.y], [req.end.x, req.end.y], req.map_png_path)
     # cornerpts = list(map(get_pose2D, cornerpts))
     return MapAndEndptsResponse(cornerpts)

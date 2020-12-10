@@ -11,6 +11,7 @@ import tf2_ros
 import sys
 
 from enum import Enum
+from std_msgs.msg import String
 from geometry_msgs.msg import Twist, Pose2D
 from nav_msgs.msg import Odometry
 from pong_driver.msg import DriveCmd
@@ -33,7 +34,7 @@ class PongMaster:
 		# DRIVE ROUTINE: 0 for PID, 1 for TURN + GO w/ OBS
 		self.drive_routine = drive_routine
 		self.map_path = map_path
-		self.status = status.WAIT	
+		self.status = Status.WAIT	
 		self.done = False
 
 		self.start = None
@@ -66,7 +67,7 @@ class PongMaster:
 		# Nir, your path planning
 		# self.status -> TURN or DRIVE_PID, based on self.drive_routine
 
-		assert(cmd.start != None and cmd.end != None)
+		assert(self.start != None and self.end != None)
 
 		cmd = TFCmd()
 		cmd.start = self.start
@@ -74,15 +75,19 @@ class PongMaster:
 		cmd.cmd = 0
 		cmd.image_path = self.map_path
 
-		pub = rospy.Publisher('pong_master/goal_tf_publisher/cmd', TFCmd, queue_size=1)
+		pub = rospy.Publisher('/pong_master/goal_tf_publisher/cmd', TFCmd, queue_size=1)
+		rospy.loginfo("Publishing cmd to path planner.")
 		pub.publish(cmd)
+		rospy.loginfo("Waiting for response...")
 		status = rospy.wait_for_message('/goal_tf_publisher/pong_master/status', String)
 		if status == 'Success':
+			rospy.loginfo('Success. Proceeding with drive routine.')
 			if self.drive_routine == 0:
 				self.status = Status.DRIVE_PID
 			elif self.drive_routine == 1:
 				self.status = Status.TURN
 		else:
+			rospy.loginfo('Failure in plan state.')
 			self.status = Status.WAIT
 
 	def turn(self):
@@ -90,13 +95,15 @@ class PongMaster:
 		# self.status -> DETECT
 		# Assumes appropriate target frame		
 		
-		# Turn			
+		# Turn		
+		rospy.loginfo('Publishing turn cmd.')	
 		self.publish_cmd(1)	
 
+		rospy.loginfo("Awaiting response from pong_driver.")
 		status = rospy.wait_for_message('/pong_driver/pong_master/cmd_status', String)
 
 		if status == 'Success':
-
+			rospy.loginfo("Success. Status => DETECT")
 			# Good, move to detect state, no pose update
 			self.status = Status.DETECT
 
@@ -109,10 +116,13 @@ class PongMaster:
 	def drive(self):
 		# Drive forward self.cur_goal.linear.x meters forward.
 		# self.status -> ADVANCE
+		rospy.loginfo("Publishing drive cmd.")
 		self.publish_cmd(2)
+		rospy.loginfo("Waiting for response.")
 		status = rospy.wait_for_message('/pong_driver/pong_master/cmd_status', String)
 		
 		if status == 'Success':
+			rospy.loginfo("Success. Status => ADVANCE")
 			self.status = Status.ADVANCE
 		else:
 			self.status = Status.WAIT
@@ -120,10 +130,13 @@ class PongMaster:
 	def drive_pid(self):
 		# Drive to self.cur_goal using unicycle PID
 		# self.status -> ADVANCE
+		rospy.loginfo("Publishing drive PID cmd.")
 		self.publish_cmd(0)
+		rospy.loginfo("Waiting for response.")
 		status = rospy.wait_for_message('/pong_driver/pong_master/cmd_status', String)
 
 		if status == 'Success':
+			rospy.loginfo("Success. Status => ADVANCE")
 			self.status = Status.ADVANCE
 		else:
 			status = Status.WAIT
@@ -131,12 +144,16 @@ class PongMaster:
 	def detect(self):
 		# Run obstacle detection and map update routine
 		# self.status -> UPDATE or DRIVE
-		# CALL DETECTION ROSSERVICE				
+		# CALL DETECTION ROSSERVICE	
+		rospy.loginfo("Sending detect command.")			
 		self.obs_pub.publish("Detect")
+		rospy.loginfo("Waiting for response.")
 		status = rospy.wait_for_message('/obstacle_avoid/pong_master/status', String)
 		if status == 'Obstacle':
+			rospy.loginfo("Obstacle detected. Updating map.")
 			self.status = Status.UPDATE
 		elif status == 'Clear':
+			rospy.loginfo("No obstacles. Proceeding to DRIVE.")
 			self.status = Status.DRIVE
 
 	def advance(self):
@@ -145,10 +162,13 @@ class PongMaster:
 		# self.status -> TURN, DRIVE_PID, or UPDATE
 		cmd = TFCmd()
 		cmd.cmd = 1
+		rospy.loginfo("Sending advance command to goal broadcaster.")
 		self.nav_pub.publish(cmd)
 
+		rospy.loginfo("Waiting for response.")
 		status = rospy.wait_for_message('/goal_tf_publisher/pong_master/status', String)
 		if status == 'Success':
+			rospy.loginfo("Successful advancement. Proceeding.")
 			if self.drive_routine == 0:
 				# PID
 				self.status = Status.DRIVE_PID
@@ -169,9 +189,12 @@ class PongMaster:
 		cmd.end = self.end
 		cmd.image_path = self.dynamic_map_path
 		
+		rospy.loginfo("Sending update request to nav handler.")
 		self.nav_pub(cmd)
+		rospy.loginfo("Waiting for response.")
 		status = rospy.wait_for_message('/goal_tf_publisher/pong_master/status', String)
 		if status == 'Success':
+			rospy.loginfo("Success. Proceeding.")
 			if self.drive_routine == 0:
 				self.status = Status.DRIVE_PID
 			elif self.drive_routine == 1:
@@ -189,9 +212,8 @@ class PongMaster:
 				self.wait()
 
 			elif self.status == Status.PLAN:
-				rospy.loginfo("Planning new path from (x=%.2f, y=%.2f) to (x=%.2f, y=%.2f).",
-					self.cur_loc.position.x, self.cur_loc.position.y, 
-						self.final_goal.position.x, self.final_goal.position.y)
+				rospy.loginfo("Planning new path from (x=%.2f, y=%.2f) to (x=%.2f, y=%.2f).", 
+					self.start.x, self.start.y, self.end.x, self.end.y)
 				self.plan()
 
 			elif self.status == Status.TURN:	
@@ -228,14 +250,15 @@ class PongMaster:
 		cmd.cmd = drive_command
 		self.cmd_pub.publish(cmd)
 	
-	def test(self, x, y):
+	def test(self, x, y, map_path):
 		self.end = Pose2D()
 		self.start = Pose2D()
-		self.start.x = 1
-		self.start.y = 2
-		self.end.z = x
+		self.start.x = 8
+		self.start.y = 8
+		self.end.x = x
 		self.end.y = y
-		
+		self.map_path = map_path
+			
 		self.status = Status.PLAN
 		self.drive_loop()
 		
@@ -243,13 +266,16 @@ class PongMaster:
 # when exectued in the shell
 
 def test(pongMaster):
-	pongMaster.test(2, 2)	
+	map_path = '/home/kyletucker/ros_workspaces/project/src/PingPongFinder/worlds/src/AStar/testrgb2.png'
+	pongMaster.test(2, 2, map_path)	
 
 
 if __name__ == '__main__':
-	
+	# map_path = '/home/kyletucker/ros_workspaces/project/src/stdr_simulator/stdr_resources/maps/sparse_obstacles.png'	
+	map_path = '/home/kyletucker/ros_workspaces/project/src/PingPongFinder/worlds/src/AStar/testrgb2.png'
+
 	pongMaster = PongMaster(map_path, 0)
-	rospy.init_node('pong_master', anyonymous=True)
+	rospy.init_node('pong_master', anonymous=True)
 	
 	test(pongMaster)	
 

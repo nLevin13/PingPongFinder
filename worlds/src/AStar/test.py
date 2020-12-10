@@ -15,7 +15,7 @@ def get_obstacle_array(img_name):
 	return ox, oy
 
 if __name__ == "__main__":
-	img = imread(args[1])[...,0]
+	img = imread('/home/kyletucker/ros_workspaces/project/src/stdr_simulator/stdr_resources/maps/sparse_obstacles.png')
 	#array = np.array(img)
 	print(img.shape)
 	img = resize(img, None, fx=0.25, fy=0.25)
