@@ -78,7 +78,7 @@ class RobotObsDetect:
 		print("publish map")
 		new_img = Image.fromarray(self.obs_map_data)
 		new_img.save("/home/kyletucker/ros_workspaces/project/src/stdr_simulator/stdr_resources/maps/sparse_obstacles_dynamic.png")
-		self.send_success()
+		self.send_obstacle()
 
 	def detect_obstacle(self):
 		
@@ -99,6 +99,7 @@ class RobotObsDetect:
 
 		if confidence >= self.confidence_threshold:
 			print("No obstacle detected. Proceeding.")
+			self.send_clear()
 			return 0
 
 		robot_lin_x = self.location.pose.pose.position.x
@@ -111,12 +112,20 @@ class RobotObsDetect:
 		self.update_map(obstacle_loc_x, obstacle_loc_y)
 
 	def cmd_cbk(self, msg):
-		if msg == "Detect":
+		if msg.data == "Detect":
 			self.detect_obstacle()
 	
-	def send_success(self):
-		self.status_pub.publish('Successs')
+	def send_obstacle(self):
+		rospy.sleep(.5)
+		msg = String()
+		msg.data = 'Obstacle'
+		self.status_pub.publish(msg)
 
+	def send_clear(self):
+		rospy.sleep(.5)
+		msg = String()
+		msg.data = 'Clear'
+		self.status_pub.publish(msg)
 
 def listener():
 
