@@ -139,16 +139,16 @@ def within_threshold(transform):
 	return sqrt(error) < THRESHOLD
 
 def send_failure():
-	pub = rospy.Publisher('/pong_driver/robot0/cmd_status', String, queue_size=1)
+	pub = rospy.Publisher('/pong_driver/pong_master/cmd_status', String, queue_size=1)
 	pub.publish('Failure')
 
 def send_success():
-	pub = rospy.Publisher('/pong_driver/robot0/cmd_status', String, queue_size=1)
+	pub = rospy.Publisher('/pong_driver/pong_master/cmd_status', String, queue_size=1)
 	pub.publish('Success')
 
 if __name__ == '__main__':
 	rospy.init_node('pong_driver', anonymous=True)
 	rospy.Subscriber('/robot0/odom', Odometry, odom_cbk)
-	rospy.Subscriber('/pong_master/robot0/drive_cmd', DriveCmd, drive_cmd_callback)
+	rospy.Subscriber('/pong_master/pong_driver/drive_cmd', DriveCmd, drive_cmd_callback)
 
 	rospy.spin()

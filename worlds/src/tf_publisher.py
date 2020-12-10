@@ -18,6 +18,8 @@ def callback(tfcmd_msg):
 	status = tfcmd_msg.cmd
 	if status == 0:
 		start_pose = tfcmd_msg.start
+		if start_pose == None:
+			start_pose = poses[curr_target - 1]
 		end_pose = tfcmd_msg.end
 		image_path = tfcmd_msg.image_path
 		
@@ -76,3 +78,4 @@ def send_fail():
 
 if __name__ == '__main__':
 	tf_service_listener()
+

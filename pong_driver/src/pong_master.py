@@ -11,9 +11,10 @@ import tf2_ros
 import sys
 
 from enum import Enum
-from geometry_msgs.msg import Twist
+from geometry_msgs.msg import Twist, Pose2D
 from nav_msgs.msg import Odometry
 from pong_driver.msg import DriveCmd
+from worlds.msg import TFCmd
 
 #Define the method which contains the main functionality of the node.
 
@@ -28,45 +29,27 @@ class Status(Enum):
 
 class PongMaster:
 
-	def __init__(self, map_path, drive_routine=1):
+	def __init__(self, map_path, drive_routine):
+		# DRIVE ROUTINE: 0 for PID, 1 for TURN + GO w/ OBS
 		self.drive_routine = drive_routine
-		self.map = None
+		self.map_path = map_path
 		self.status = status.WAIT	
 		self.done = False
 
-		self.goal_poses = [] # array of ordered goal poses.
-		self.cur_pose_num = None # we currently navigating towards this pose index.
-		self.path_len = 0 # len(goal_poses) for logging data?
-		
-		self.cur_goal = None # Immediate goal pose. self.goal_poses[self.cur_pose_num]
+		self.start = None
+		self.end = None
 		self.cur_loc = None # Current location, pose converted from odom.
-
-		self.final_goal = None # Final overall goal pose.
-
+	
+		# DEPRECIATED
+		# self.goal_poses = [] # array of ordered goal poses.
+		# self.cur_pose_num = None # we currently navigating towards this pose index.
+		# self.path_len = 0 # len(goal_poses) for logging data?
+		
+		# self.cur_goal = None # Immediate goal pose. self.goal_poses[self.cur_pose_num]
+		self.dynamic_map_path = '/home/kyletucker/ros_workspaces/project/src/stdr_simulator/stdr_resources/maps/sparse_obstacles_dynamic.png'
+		self.nav_pub = rospy.Publisher("/pong_master/goal_tf_publisher/cmd", TFCmd, queue_size=1)
 		self.cmd_pub = rospy.Publisher("/pong_master/robot0/drive_cmd", DriveCmd, queue_size=1)
-		
-		self.driver_status_topic
-		
-
-	def check_goal(self):
-		# Checks if we have enough metadata to navigate to the current goal.
-		# Returns a bool
-		check = False
-		if self.cur_goal == None:
-			rospy.loginfo("No current goal.")
-		elif self.cur_loc == None:
-			rospy.loginfo("No current location.")
-		elif self.goal_poses == [] or self.cur_pose_num == None:
-			rospy.loginfo("No current path.")
-		elif self.done:
-			rospy.loginfo("Done.")
-		else:
-			rospy.loginfo("Ready to execute current goal. Goal-Check Passed.")
-			return True
-		rospy.loginfo("One or more errors. Goal will not be executed.")
-		return False
-
-
+		self.obs_pub = rospy.Publisher("/pong_master/obstacle_avoid/cmd", String, queue_size=1)
 
 	def wait(self):
 		# Awaits commands on a rostopic. Perhaps waiting for the "go" button on the cmd line, or in event of error!
@@ -82,17 +65,40 @@ class PongMaster:
 		# Update new final goal, if necessary. 
 		# Nir, your path planning
 		# self.status -> TURN or DRIVE_PID, based on self.drive_routine
-		return Status.PLAN
+
+		assert(cmd.start != None and cmd.end != None)
+
+		cmd = TFCmd()
+		cmd.start = self.start
+		cmd.end = self.end
+		cmd.cmd = 0
+		cmd.image_path = self.map_path
+
+		pub = rospy.Publisher('pong_master/goal_tf_publisher/cmd', TFCmd, queue_size=1)
+		pub.publish(cmd)
+		status = rospy.wait_for_message('/goal_tf_publisher/pong_master/status', String)
+		if status == 'Success':
+			if self.drive_routine == 0:
+				self.status = Status.DRIVE_PID
+			elif self.drive_routine == 1:
+				self.status = Status.TURN
+		else:
+			self.status = Status.WAIT
 
 	def turn(self):
 		# Turn self.cur_goal.angular.z radians. 
 		# self.status -> DETECT
-				
-		# PUBLISH DRIVE CMD
-		# AWAIT CONFIRMATION BEFORE PROCEEDING
+		# Assumes appropriate target frame		
 		
+		# Turn			
 		self.publish_cmd(1)	
 
+		status = rospy.wait_for_message('/pong_driver/pong_master/cmd_status', String)
+
+		if status == 'Success':
+
+			# Good, move to detect state, no pose update
+			self.status = Status.DETECT
 
 		else:
 			# we go into wait state.
@@ -104,31 +110,75 @@ class PongMaster:
 		# Drive forward self.cur_goal.linear.x meters forward.
 		# self.status -> ADVANCE
 		self.publish_cmd(2)
-		msg = rospy.wait_for_message()
-
+		status = rospy.wait_for_message('/pong_driver/pong_master/cmd_status', String)
+		
+		if status == 'Success':
+			self.status = Status.ADVANCE
+		else:
+			self.status = Status.WAIT
 
 	def drive_pid(self):
 		# Drive to self.cur_goal using unicycle PID
 		# self.status -> ADVANCE
 		self.publish_cmd(0)
+		status = rospy.wait_for_message('/pong_driver/pong_master/cmd_status', String)
 
-
+		if status == 'Success':
+			self.status = Status.ADVANCE
+		else:
+			status = Status.WAIT
+		
 	def detect(self):
 		# Run obstacle detection and map update routine
 		# self.status -> UPDATE or DRIVE
 		# CALL DETECTION ROSSERVICE				
+		self.obs_pub.publish("Detect")
+		status = rospy.wait_for_message('/obstacle_avoid/pong_master/status', String)
+		if status == 'Obstacle':
+			self.status = Status.UPDATE
+		elif status == 'Clear':
+			self.status = Status.DRIVE
 
 	def advance(self):
 		# Advance instance variables to next goal pose, listening for updates to final goal.
 		# Else, notify if goal is reached.
 		# self.status -> TURN, DRIVE_PID, or UPDATE
+		cmd = TFCmd()
+		cmd.cmd = 1
+		self.nav_pub.publish(cmd)
+
+		status = rospy.wait_for_message('/goal_tf_publisher/pong_master/status', String)
+		if status == 'Success':
+			if self.drive_routine == 0:
+				# PID
+				self.status = Status.DRIVE_PID
+			elif self.drive_routine == 1:
+				self.status = Status.TURN
+		else:
+			self.status = Status.WAIT
+
 
 	def update(self):
 		# We detected an obstacle or updated our final goal pose!
 		# Check for updates on both
 		# We must plan a new path on the new map, or towards the new goal.
 		# self.status -> PLAN
-		# 	
+		cmd = TFCmd()
+		cmd.cmd = 0
+		cmd.start = None
+		cmd.end = self.end
+		cmd.image_path = self.dynamic_map_path
+		
+		self.nav_pub(cmd)
+		status = rospy.wait_for_message('/goal_tf_publisher/pong_master/status', String)
+		if status == 'Success':
+			if self.drive_routine == 0:
+				self.status = Status.DRIVE_PID
+			elif self.drive_routine == 1:
+				self.status = Status.TURN
+		else:
+			self.status = Status.WAIT
+
 
 	def drive_loop(self):
 
@@ -173,17 +223,37 @@ class PongMaster:
 	def publish_cmd(self, drive_command):
 		# Assuming that we have the correct goal poses initialized, 
 		# publish CMD to robot
+		cmd = DriveCmd()		
+		cmd.target_frame = 'target'
+		cmd.cmd = drive_command
+		self.cmd_pub.publish(cmd)
+	
+	def test(self, x, y):
+		self.end = Pose2D()
+		self.start = Pose2D()
+		self.start.x = 1
+		self.start.y = 2
+		self.end.z = x
+		self.end.y = y
 		
-		target_frame = 
-		self.cmd_pub.publish()
-
+		self.status = Status.PLAN
+		self.drive_loop()
+		
 # This is Python's sytax for a main() method, which is run by default
 # when exectued in the shell
 
+def test(pongMaster):
+	pongMaster.test(2, 2)	
+
+
 if __name__ == '__main__':
 	
-	pongMaster = PongMaster(map_path)
+	pongMaster = PongMaster(map_path, 0)
 	rospy.init_node('pong_master', anyonymous=True)
+	
+	test(pongMaster)	
+
+	
 	rospy.spin()	
 
 
