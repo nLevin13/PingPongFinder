@@ -54,7 +54,7 @@ class PongMaster:
 		self.nav_pub = rospy.Publisher("/pong_master/goal_tf_publisher/cmd", TFCmd, queue_size=1)
 		self.cmd_pub = rospy.Publisher("/pong_master/pong_driver/drive_cmd", DriveCmd, queue_size=1)
 		self.obs_pub = rospy.Publisher("/pong_master/obstacle_avoid/cmd", String, queue_size=1)
-		rospy.sleep(1)
+		rospy.sleep(5)
 
 
 	def wait(self):

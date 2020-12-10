@@ -23,7 +23,7 @@ def pub_data():
 		fs = float(fs)
 
 		t1, t2, t3, t4 = i1/fs, i2/fs, i3/fs, i4/fs
-		print("t's: ", t1, t2, t3, t4)
+		# print("t's: ", t1, t2, t3, t4)
 		p1, p2, p3, p4 = mic1_loc[:2], mic2_loc[:2], mic3_loc[:2], mic4_loc[:2]
 		s = 343 # speed of sound in m/s
 		r1 = 0.05#0.1
@@ -113,7 +113,7 @@ def pub_data():
 				#plt.plot([i1[0], i2[0]], [i1[1], i2[1]], '.', color=color)
 
 			if len(valid_ints) >= 3:
-				print(str(len(valid_ints)) + " intersections!")
+				# print(str(len(valid_ints)) + " intersections!")
 				sorted_ints = PolygonSort(valid_ints)
 				area = PolygonArea(sorted_ints)
 				print(area)
@@ -274,9 +274,9 @@ def pub_data():
 			for i in ints:
 				if (0 <= i[0] <= w) and (0 <= i[1] <= h):
 					valid_ints.append(i)
-		print("Found points: " + str(valid_ints))
-		print("Mean: " + str(np.mean(valid_ints, axis=0)))
-		print("Area: " + str(area))
+		# print("Found points: " + str(valid_ints))
+		# print("Mean: " + str(np.mean(valid_ints, axis=0)))
+		# print("Area: " + str(area))
 		return(np.mean(valid_ints, axis=0), area)
 
 
@@ -321,7 +321,7 @@ def pub_data():
 	mic_locs = np.c_[
 	    mic1_loc, mic2_loc, mic3_loc, mic4_loc # mic 1  # mic 2 # mic 3
 	]
-	src_loc = [5, 5, 0]
+	src_loc = [12.5, 13, 0]
 	source_locations = [[0.1, 0.1, 0],
 						[14.5, 14.5, 0],
 						[14.5, 0, 0], 
@@ -353,7 +353,7 @@ def pub_data():
 	print("done")
 	while not rospy.is_shutdown():
 		#src_loc = source_locations[counter % len(source_locations)]
-		src_loc = source_locations[12] #[7]
+		#src_loc = source_locations[12] #[7]
 		start = time.time()
 		location, area = locate(room_dim, mic_locs, src_loc)
 		print("Time elapsed: " + str(time.time()-start))

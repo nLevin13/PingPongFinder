@@ -36,6 +36,12 @@
 			name="pong_driver_node"
 			type="pong_driver_node.py"
 			output="screen" />	
+	
+	<node pkg="pong_driver"
+			name="pong_master"
+			type="pong_master.py"
+			output="screen" />
+
 
 
 </launch>
