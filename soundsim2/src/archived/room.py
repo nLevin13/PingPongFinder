@@ -4,7 +4,6 @@ This results in a reverberation time slightly longer than desired.
 The simulation is pure image source method.
 The audio sample with the reverb added is saved back to `examples/samples/guitar_16k_reverb.wav`.
 """
-from __future__ import division
 import argparse
 
 import matplotlib.pyplot as plt
@@ -14,10 +13,11 @@ from scipy.io import wavfile
 import pyroomacoustics as pra
 from detect_peaks import detect_peaks
 import numdifftools as nd
+import pandas as pd
 
 methods = ["ism", "hybrid"]
 
-def sim(src_loc, mic_locs, noise=False):
+def simroom(room_dim, src_loc, mic_locs):
 
     parser = argparse.ArgumentParser(
         description="Simulates and adds reverberation to a dry sound sample. Saves it into `./examples/samples`."
@@ -32,9 +32,8 @@ def sim(src_loc, mic_locs, noise=False):
     args = parser.parse_args()
 
     # The desired reverberation time and dimensions of the room
-    rt60_tgt = 0.166  # seconds, original was 0.3, IRL this would probably be closest by digitally removing reverb
-    room_dim = [10, 10, 3.5]  # meters
-    #room_dim = [5, 5, 3]
+    rt60_tgt = 0.3  # seconds
+      # meters
 
     # import a mono wavfile as the source signal
     # the sampling frequency should match that of the room
@@ -44,27 +43,11 @@ def sim(src_loc, mic_locs, noise=False):
     e_absorption, max_order = pra.inverse_sabine(rt60_tgt, room_dim)
 
     # Create the room
-    if args.method == "ism":
-        room = pra.ShoeBox(
-            room_dim, fs=fs, materials=pra.Material(e_absorption), max_order=max_order
-        )
-    elif args.method == "hybrid":
-        room = pra.ShoeBox(
-            room_dim,
-            fs=fs,
-            materials=pra.Material(e_absorption),
-            max_order=3,
-            ray_tracing=True,
-            air_absorption=True,
-        )
-
-    # place the source in the room
-    #src_loc = [5, 5, 1]
+    room = pra.ShoeBox(room_dim, fs=fs, materials=pra.Material(e_absorption), max_order=max_order)
     
 
     room.add_source(src_loc, signal=audio, delay=0.5)
 
-    
 
     # finally place the array in the room
     room.add_microphone_array(mic_locs)
@@ -77,43 +60,63 @@ def sim(src_loc, mic_locs, noise=False):
         norm=True,
         bitdepth=np.int16,
     )
-
-    
-    print(fs)
+    """
     detect_peaks(room.mic_array.signals[0, :], mph=0, mpd=1000, threshold=10, show=True)
     detect_peaks(room.mic_array.signals[1, :], mph=0, mpd=1000, threshold=10, show=True)
     detect_peaks(room.mic_array.signals[2, :], mph=0, mpd=1000, threshold=10, show=True)
-    detect_peaks(room.mic_array.signals[3, :], mph=0, mpd=1000, threshold=10, show=True)
-    
-    sig1 = room.mic_array.signals[0, :]
-    sig2 = room.mic_array.signals[1, :]
-    sig3 = room.mic_array.signals[2, :]
-    sig4 = room.mic_array.signals[3, :]
 
-    div = 100 #10 is where things start to break down
-    if noise:
-    	sig1 = sig1 + np.random.normal(0, max(sig1)/div, sig1.shape)
-    	sig2 = sig2 + np.random.normal(0, max(sig2)/div, sig2.shape)
-    	sig3 = sig3 + np.random.normal(0, max(sig3)/div, sig3.shape)
-    	sig4 = sig4 + np.random.normal(0, max(sig4)/div, sig4.shape)
-
-    sigs = [sig1, sig2, sig3, sig4]
+    print(max(room.mic_array.signals[0, :]))
+    print(max(room.mic_array.signals[1, :]))
+    print(max(room.mic_array.signals[2, :]))
     """
-    for sig in sigs:
-    	detect_peaks(sig, mph=0, mpd=1000, threshold=10, show=True)
-    """
+    return np.array([max(room.mic_array.signals[0, :]), max(room.mic_array.signals[1, :]), max(room.mic_array.signals[2, :])])
 
-    I1 = max(sig1)
-    I2 = max(sig2)
-    I3 = max(sig3)
-    I4 = max(sig4)
-    
+room_dim = [3, 3, 2]
+#src_loc = np.array([0.1, 0.1, 2.5])
+mic1_loc = np.array([0.1, 0.1, 0])
+mic2_loc = np.array([2.9, 0.1, 0])
+mic3_loc = np.array([1.5, 2.9, 0])
 
-    i1 = np.where(sig1 == I1)[0][0]
-    i2 = np.where(sig2 == I2)[0][0]
-    i3 = np.where(sig3 == I3)[0][0]
-    i4 = np.where(sig4 == I4)[0][0]
-    print("SRC's: " + str(src_loc))
-    print(I1, I2, I3, I4)
-    print(i1, i2, i3, i4)
-    return fs, i1, i2, i3, i4
+mic_locs = np.c_[
+    mic1_loc, mic2_loc, mic3_loc # mic 1  # mic 2 # mic 3
+]
+print(mic_locs)
+
+#simroom(room_dim, src_loc, mic_locs)
+#making sure there are no source points that are on a mic location
+x_min = 0.2
+x_max = 2.8 #0.3 for testing
+y_min = 0.2
+y_max = 2.8 #0.3 for testing
+z_min = 0.1
+z_max = 0.9 #3.3
+step_size = 0.1
+x_num = int((x_max-x_min)/step_size + 1)
+y_num = int((y_max-y_min)/step_size + 1)
+z_num = int((z_max-z_min)/step_size + 1)
+print(x_num, y_num, z_num)
+arr_len = x_num*y_num*z_num
+print(arr_len)
+#our y's
+srcs = np.zeros((arr_len, 3))
+n = 0
+for i in np.linspace(x_min, x_max, num=x_num):
+	for j in np.linspace(y_min, y_max, num=y_num):
+		for k in np.linspace(z_min, z_max, num=z_num):
+			srcs[n] = np.round(np.array([i, j, k]), decimals=1)
+			n += 1
+print(srcs[10])
+
+#print(grid[0], grid [100], grid[arr_len-1])
+#y = np.array()
+#find x's
+intensities = np.zeros((arr_len, 3))
+n = 0
+for src in srcs:
+	print(src)
+	intensities[n] = simroom(room_dim, src, mic_locs)
+	print(n, intensities[n])
+	n += 1
+#print(intensities[0], intensities[100], intensities[arr_len-1])
+simdata = np.concatenate((srcs, intensities), axis=1)
+np.savetxt('simdata2.csv', simdata, delimiter=',', fmt='%10.5f')#, fmt='%d')
