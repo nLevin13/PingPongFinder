@@ -17,7 +17,7 @@ import numdifftools as nd
 
 methods = ["ism", "hybrid"]
 
-def sim(src_loc, mic_locs, noise=False):
+def sim(room_dim, mic_locs, src_loc, noise=False):
 
     parser = argparse.ArgumentParser(
         description="Simulates and adds reverberation to a dry sound sample. Saves it into `./examples/samples`."
@@ -32,13 +32,14 @@ def sim(src_loc, mic_locs, noise=False):
     args = parser.parse_args()
 
     # The desired reverberation time and dimensions of the room
-    rt60_tgt = 0.166  # seconds, original was 0.3, IRL this would probably be closest by digitally removing reverb
-    room_dim = [10, 10, 3.5]  # meters
+    rt60_tgt = 0.2  # seconds, original was 0.3, IRL this would probably be closest by digitally removing reverb
+    
     #room_dim = [5, 5, 3]
 
     # import a mono wavfile as the source signal
     # the sampling frequency should match that of the room
-    fs, audio = wavfile.read("examples/samples/guitar_16k.wav")
+    ### This needs to be run from the final_project directory!!! ###
+    fs, audio = wavfile.read("src/PingPongFinder/soundsim2/src/examples/samples/guitar_16k.wav")
 
     # We invert Sabine's formula to obtain the parameters for the ISM simulator
     e_absorption, max_order = pra.inverse_sabine(rt60_tgt, room_dim)
@@ -72,18 +73,21 @@ def sim(src_loc, mic_locs, noise=False):
     # Run the simulation (this will also build the RIR automatically)
     room.simulate()
 
+    ### This needs to be run from the final_project directory!!! ###
     room.mic_array.to_wav(
-        "examples/samples/guitar_16k_reverb_{}.wav".format(args.method),
+        "src/PingPongFinder/soundsim2/src/examples/samples/guitar_16k_reverb_{}.wav".format(args.method),
         norm=True,
         bitdepth=np.int16,
     )
 
     
     print(fs)
+    """
     detect_peaks(room.mic_array.signals[0, :], mph=0, mpd=1000, threshold=10, show=True)
     detect_peaks(room.mic_array.signals[1, :], mph=0, mpd=1000, threshold=10, show=True)
     detect_peaks(room.mic_array.signals[2, :], mph=0, mpd=1000, threshold=10, show=True)
     detect_peaks(room.mic_array.signals[3, :], mph=0, mpd=1000, threshold=10, show=True)
+    """
     
     sig1 = room.mic_array.signals[0, :]
     sig2 = room.mic_array.signals[1, :]
