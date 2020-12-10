@@ -3,7 +3,8 @@ import rospy
 import tf
 import tf2_ros
 from geometry_msgs.msg import Pose2D
-from worlds.srv import MapAndEndpts, MapAndEndptsResponse
+from worlds.srv import MapAndEndpts
+from worlds.msg import TFCmd
 
 poses = []
 curr_target = -1

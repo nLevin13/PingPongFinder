@@ -15,6 +15,11 @@ add_service_files(
   MapAndEndpts.srv
 )
 
+add_message_files(
+  FILES
+  TFCmd.msg
+)
+
 generate_messages(
   DEPENDENCIES
   geometry_msgs
