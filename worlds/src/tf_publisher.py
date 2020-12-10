@@ -66,22 +66,16 @@ def test():
 	rospy.Subscriber('/pong_master/goal_tf_publisher/cmd', TFCmd, callback)
 	rospy.loginfo("Waiting for PongMaster")
 	data = rospy.wait_for_message('/pong_master/goal_tf_publisher/cmd', TFCmd)
-	
-	target = Pose2D()
-	target.x = 5
-	target.y = 2.5
-	target.theta = 0
-	target2 = Pose2D()
-	target2.x = 5
-	target2.y = 5
-	target2.theta = 0
-	target3 = Pose2D()
-	target3.x = 10
-	target3.y = 5
-	target3.theta = 0
-	poses.append(target)
-	poses.append(target2)
-	poses.append(target3)
+
+	x = [1, 2, 3, 4]
+	y = [2, 2, 2, 2]
+	z = [0, 0, 0, 0]
+	for i in range(len(x)):
+		temp = Pose2D
+		temp.x = x[i]
+		temp.y = y[i]
+		temp.z = z[i]	
+		poses.append(temp)
 	
 	send_success()
 

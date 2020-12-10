@@ -39,7 +39,7 @@ def sim(room_dim, mic_locs, src_loc, noise=False):
     # import a mono wavfile as the source signal
     # the sampling frequency should match that of the room
     ### This needs to be run from the final_project directory!!! ###
-    fs, audio = wavfile.read("src/PingPongFinder/soundsim2/src/examples/samples/guitar_16k.wav")
+    fs, audio = wavfile.read("/home/kyletucker/ros_workspaces/project/src/PingPongFinder/soundsim2/src/examples/samples/guitar_16k.wav")
 
     # We invert Sabine's formula to obtain the parameters for the ISM simulator
     e_absorption, max_order = pra.inverse_sabine(rt60_tgt, room_dim)
@@ -75,7 +75,7 @@ def sim(room_dim, mic_locs, src_loc, noise=False):
 
     ### This needs to be run from the final_project directory!!! ###
     room.mic_array.to_wav(
-        "src/PingPongFinder/soundsim2/src/examples/samples/guitar_16k_reverb_{}.wav".format(args.method),
+        "/home/kyletucker/ros_workspaces/project/src/PingPongFinder/soundsim2/src/examples/samples/guitar_16k_reverb_{}.wav".format(args.method),
         norm=True,
         bitdepth=np.int16,
     )

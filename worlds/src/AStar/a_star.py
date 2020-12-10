@@ -234,8 +234,8 @@ def main(s, g, img_name):
     #gy = 166.0  # [m]
     sx, sy = s
     gx, gy = g
-    grid_size = 2  # [m]
-    robot_radius = 18.0  # [m]
+    grid_size = 5  # [m]
+    robot_radius = 50  # [m]
     # print('yes')
     # set obstacle positions
 	# print(img_name)

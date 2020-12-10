@@ -10,6 +10,7 @@ import rospy
 import tf2_ros
 import sys
 
+from soundsim2.msg import AcousticStatus
 from enum import Enum
 from std_msgs.msg import String
 from geometry_msgs.msg import Twist, Pose2D
@@ -27,6 +28,7 @@ class Status(Enum):
 	DETECT = 5
 	UPDATE = 6
 	ADVANCE = 7
+	LISTEN = 8
 	WAIT = 0
 
 class PongMaster:
@@ -210,12 +212,20 @@ class PongMaster:
 		else:
 			self.status = Status.WAIT
 
+	def listen(self):
+		status = rospy.wait_for_message('location', AcousticStatus)
+		self.end = status.goal
+		self.status = Status.PLAN	
+		
 
 	def drive_loop(self):
 		try:
 			while not self.done:
+				if self.status == Status.LISTEN:
+					rospy.loginfo("Listening")
+					self.listen()
 
-				if self.status == Status.WAIT:
+				elif self.status == Status.WAIT:
 					rospy.loginfo("Waiting.")
 					self.wait()
 
@@ -270,7 +280,7 @@ class PongMaster:
 		self.end.y = y
 		self.map_path = map_path
 			
-		self.status = Status.PLAN
+		self.status = Status.LISTEN
 		self.drive_loop()
 		
 # This is Python's sytax for a main() method, which is run by default
