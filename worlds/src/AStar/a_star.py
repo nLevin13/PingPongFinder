@@ -5,10 +5,12 @@ matplotlib.use('TkAgg')
 from matplotlib import pyplot as plt
 from test import get_obstacle_array
 from sys import argv
+import model_predictive_speed_and_steer_control as mpsasc
 import rospy
 from worlds.srv import MapAndEndpts, MapAndEndptsResponse
 from geometry_msgs.msg import Pose2D
-show_animation = True
+show_animation = False
+multiplier = 50.0
 
 class AStarPlanner:
 
@@ -234,15 +236,11 @@ def main(s, g, img_name):
     #gy = 166.0  # [m]
     sx, sy = s
     gx, gy = g
-    grid_size = 2  # [m]
-    robot_radius = 18.0  # [m]
+    grid_size = 16  # [m]
+    robot_radius = 24.0  # [m]
     # print('yes')
     # set obstacle positions
-	# print(img_name)
-    ox, oy, shape = get_obstacle_array(img_name)
-
-    # sy = shape[1] - sy
-    # gy = shape[1] - gy
+    ox, oy = get_obstacle_array(img_name)
 
     if show_animation:  # pragma: no cover
     #"""
@@ -289,10 +287,7 @@ def main(s, g, img_name):
             cornerposes.append(newpose)
             dx, dy = newdx, newdy
     cornerposes.append(Pose2D(rx[-1], ry[-1], my_atan(dy, dx)))
-    for pose in cornerposes:
-        pose.x = pose.x * .02
-        pose.y = (shape[1] - pose.y) * .02
-    return cornerposes
+    return list(map(get_pose2D, cornerposes))
 
     #"""
     #mpsasc.main([rx[::-1], ry[::-1]], [ox, oy], [sx, sy], [gx, gy])
@@ -309,18 +304,16 @@ def my_atan(y, x):
         return math.atan(y / x)
 
 def get_pose2D(point):
-    pose = Pose2D()
-    pose.x, pose.y = point
-    pose.theta = 0 # doesn't matter for now?
-    return pose
+    point.x /= multiplier
+    point.y /= multiplier
+    return point
 
 def handle_path_find(req):
-    global show_animation
+    global show_animation, multiplier
     show_animation = False
-    print(req.map_png_path)
-    res = .02
-    cornerpts = main([int(req.start.x / res), int(req.start.y / res)], [int(req.end.x / res), int(req.end.y / res)], req.map_png_path)
-    print(cornerpts)
+    multiplier = 50.0
+    cornerpts = main([req.start.x * multiplier, req.start.y * multiplier], [req.end.x * multiplier, req.end.y * multiplier], req.map_png_path)
+    # cornerpts = list(map(get_pose2D, cornerpts))
     return MapAndEndptsResponse(cornerpts)
 
 def path_finding_server():
@@ -330,5 +323,6 @@ def path_finding_server():
     rospy.spin()
 
 if __name__ == '__main__':
-    # path_finding_server()
-    main([float(argv[2]), float(argv[3])], [float(argv[4]), float(argv[5])], argv[1])
+    path_finding_server()
+    # cornerposes = main([float(argv[2]), float(argv[3])], [float(argv[4]), float(argv[5])], argv[1])
+    # print(cornerposes)
