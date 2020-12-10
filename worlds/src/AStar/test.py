@@ -7,7 +7,7 @@ def get_obstacle_array(img_name):
 	img = Image.open(img_name)
 	array = np.flip(np.array(img), axis=0)
 	array = resize(array, None, fx=0.25, fy=0.25)
-	if len(array.shape) > 1:
+	if len(array.shape) > 2:
 		array = array[:,:,0]
 	ox, oy = [], []
 	for i in range(array.shape[0]):

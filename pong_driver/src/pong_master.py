@@ -288,7 +288,7 @@ class PongMaster:
 
 def test(pongMaster):
 	map_path = '/home/kyletucker/ros_workspaces/project/src/PingPongFinder/worlds/src/AStar/testrgb2.png'
-	pongMaster.test(7.6, 6.6, map_path)	
+	pongMaster.test(12.5, 13, map_path)	
 
 
 if __name__ == '__main__':

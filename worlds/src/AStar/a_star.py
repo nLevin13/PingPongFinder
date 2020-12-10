@@ -5,7 +5,6 @@ matplotlib.use('TkAgg')
 from matplotlib import pyplot as plt
 from test import get_obstacle_array
 from sys import argv
-import model_predictive_speed_and_steer_control as mpsasc
 import rospy
 from worlds.srv import MapAndEndpts, MapAndEndptsResponse
 from geometry_msgs.msg import Pose2D
@@ -234,10 +233,12 @@ def main(s, g, img_name):
     #sy = 20.0  # [m]
     #gx = 30.0  # [m]
     #gy = 166.0  # [m]
+    print(s)
+    print(g)
     sx, sy = s
     gx, gy = g
-    grid_size = 5  # [m]
-    robot_radius = 50  # [m]
+    grid_size = 16  # [m]
+    robot_radius = 20  # [m]
     # print('yes')
     # set obstacle positions
     ox, oy = get_obstacle_array(img_name)

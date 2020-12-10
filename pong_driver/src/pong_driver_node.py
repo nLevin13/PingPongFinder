@@ -106,8 +106,8 @@ def drive_PID(target_frame):
 	tfBuffer = tf2_ros.Buffer()
 	tfListener = tf2_ros.TransformListener(tfBuffer)
 	r = rospy.Rate(10)
-	K1 = 0.3
-	K2 = 2
+	K1 = .5
+	K2 = .8
 
 	done = False
 	while not done or not rospy.is_shutdown():
