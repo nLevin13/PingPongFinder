@@ -234,15 +234,15 @@ def main(s, g, img_name):
     #gy = 166.0  # [m]
     sx, sy = s
     gx, gy = g
-    grid_size = 20.0  # [m]
+    grid_size = 2  # [m]
     robot_radius = 18.0  # [m]
     # print('yes')
     # set obstacle positions
 	# print(img_name)
     ox, oy, shape = get_obstacle_array(img_name)
 
-    sy = shape[1] - sy
-    gy = shape[1] - gy
+    # sy = shape[1] - sy
+    # gy = shape[1] - gy
 
     if show_animation:  # pragma: no cover
     #"""

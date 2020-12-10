@@ -5,7 +5,7 @@ from cv2 import imread, resize, imwrite
 
 def get_obstacle_array(img_name):
 	img = Image.open(img_name)
-	array = np.array(img)
+	array = np.flip(np.array(img), axis=0)
 	if len(array.shape) > 1:
 		array = array[:,:,0]
 	ox, oy = [], []
@@ -14,7 +14,7 @@ def get_obstacle_array(img_name):
 			if array[i][j] < 255:
 				ox.append(i)
 				oy.append(j)
-	return ox, oy, array.shape
+	return oy, ox, array.shape
 
 if __name__ == "__main__":
 	img = imread('/home/kyletucker/ros_workspaces/project/src/stdr_simulator/stdr_resources/maps/sparse_obstacles.png')
