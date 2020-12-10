@@ -52,6 +52,8 @@ class PongMaster:
 		self.nav_pub = rospy.Publisher("/pong_master/goal_tf_publisher/cmd", TFCmd, queue_size=1)
 		self.cmd_pub = rospy.Publisher("/pong_master/pong_driver/drive_cmd", DriveCmd, queue_size=1)
 		self.obs_pub = rospy.Publisher("/pong_master/obstacle_avoid/cmd", String, queue_size=1)
+		rospy.sleep(1)
+
 
 	def wait(self):
 		# Awaits commands on a rostopic. Perhaps waiting for the "go" button on the cmd line, or in event of error!
@@ -107,7 +109,8 @@ class PongMaster:
 		if status.data == 'Success':
 			rospy.loginfo("Success. Status => DETECT")
 			# Good, move to detect state, no pose update
-			self.status = Status.DETECT
+			self.status = Status.DRIVE
+			# self.status = Status.DETECT
 
 		else:
 			# we go into wait state.
@@ -261,8 +264,8 @@ class PongMaster:
 	def test(self, x, y, map_path):
 		self.end = Pose2D()
 		self.start = Pose2D()
-		self.start.x = 8
-		self.start.y = 8
+		self.start.x = 1
+		self.start.y = 2
 		self.end.x = x
 		self.end.y = y
 		self.map_path = map_path
@@ -275,7 +278,7 @@ class PongMaster:
 
 def test(pongMaster):
 	map_path = '/home/kyletucker/ros_workspaces/project/src/PingPongFinder/worlds/src/AStar/testrgb2.png'
-	pongMaster.test(2, 2, map_path)	
+	pongMaster.test(7.6, 6.6, map_path)	
 
 
 if __name__ == '__main__':

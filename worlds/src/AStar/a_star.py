@@ -235,10 +235,14 @@ def main(s, g, img_name):
     sx, sy = s
     gx, gy = g
     grid_size = 20.0  # [m]
-    robot_radius = 16.0  # [m]
+    robot_radius = 18.0  # [m]
     # print('yes')
     # set obstacle positions
-    ox, oy = get_obstacle_array(img_name)
+	# print(img_name)
+    ox, oy, shape = get_obstacle_array(img_name)
+
+    sy = shape[1] - sy
+    gy = shape[1] - gy
 
     if show_animation:  # pragma: no cover
     #"""
@@ -285,6 +289,9 @@ def main(s, g, img_name):
             cornerposes.append(newpose)
             dx, dy = newdx, newdy
     cornerposes.append(Pose2D(rx[-1], ry[-1], my_atan(dy, dx)))
+    for pose in cornerposes:
+        pose.x = pose.x * .02
+        pose.y = (shape[1] - pose.y) * .02
     return cornerposes
 
     #"""
@@ -311,8 +318,9 @@ def handle_path_find(req):
     global show_animation
     show_animation = False
     print(req.map_png_path)
-    cornerpts = main([req.start.x, req.start.y], [req.end.x, req.end.y], req.map_png_path)
-    # cornerpts = list(map(get_pose2D, cornerpts))
+    res = .02
+    cornerpts = main([int(req.start.x / res), int(req.start.y / res)], [int(req.end.x / res), int(req.end.y / res)], req.map_png_path)
+    print(cornerpts)
     return MapAndEndptsResponse(cornerpts)
 
 def path_finding_server():

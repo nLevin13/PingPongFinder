@@ -36,6 +36,7 @@ def turn_naiive(target_frame):
 	while not done or not rospy.is_shutdown():
 		try:
 			transform = tfBuffer.lookup_transform('robot0', target_frame, rospy.Time())
+			cmd = Twist()
 			if within_threshold(transform):
 				done = True
 				rospy.loginfo("Turning goal pose achieved. Sending success message to PongMaster.")
@@ -47,13 +48,11 @@ def turn_naiive(target_frame):
 				euler_err = euler_from_quaternion(quat)
 
 
-				print('rot err: %f', transform.transfor)
 
 
 
 				cmd.angular.z = K2 * transform.transform.translation.y
 
-			print(cmd)
 			pub.publish(cmd)
 
 
@@ -78,6 +77,7 @@ def drive_naiive(target_frame):
 	while not done or not rospy.is_shutdown():
 		try:
 			transform = tfBuffer.lookup_transform('robot0', target_frame, rospy.Time())
+			cmd = Twist()
 			if turn_within_threshold(transform):
 				
 				rospy.loginfo("Driving goal pose achieved. Sending success message to PongMaster.")
@@ -86,10 +86,8 @@ def drive_naiive(target_frame):
 				cmd.angular.z = 0
 				done = True
 			else:
-				print('lin err: %f', transform.transform.translation.x)
 				cmd.linear.x = K1 * transform.transform.translation.x
 
-			print(cmd)
 			pub.publish(cmd)
 
 		except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException):
@@ -109,7 +107,7 @@ def drive_PID(target_frame):
 	tfListener = tf2_ros.TransformListener(tfBuffer)
 	r = rospy.Rate(10)
 	K1 = 0.3
-	K2 = 1.0
+	K2 = 2
 
 	done = False
 	while not done or not rospy.is_shutdown():
@@ -124,11 +122,10 @@ def drive_PID(target_frame):
 				cmd.angular.z = 0
 				done = True
 			else:
-				print('err: rad(%f), lin(%f)', transform.transform.translation.y, transform.transform.translation.x)
+				print(transform)
 				cmd.linear.x = K1 * transform.transform.translation.x
 				cmd.angular.z = K2 * transform.transform.translation.y
 		
-			print(cmd)	
 			pub.publish(cmd)
 
 

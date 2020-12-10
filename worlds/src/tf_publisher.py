@@ -22,7 +22,7 @@ def callback(tfcmd_msg):
 	global poses, curr_target
 	status = tfcmd_msg.cmd
 	if status == 0:
-		return
+
 		start_pose = tfcmd_msg.start
 		if start_pose == None:
 			start_pose = poses[curr_target - 1]
@@ -35,7 +35,7 @@ def callback(tfcmd_msg):
 		rospy.loginfo('Found path finder service')
 		try:
 			# find_path = rospy.ServiceProxy('path_find', MapAndEndpts)
-			poses = find_path(start_pose, end_pose, image_path)
+			poses = find_path(start_pose, end_pose, image_path).cornerpts
 			curr_target = 0
 			rospy.loginfo("Path found. Notifying master of success.")
 			send_success()
@@ -131,7 +131,7 @@ def send_fail():
 	master_pub.publish(msg)
 
 if __name__ == '__main__':
-	test()
+	#test()
 
-	#tf_service_listener()
+	tf_service_listener()
 
