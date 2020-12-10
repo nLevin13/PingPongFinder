@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 import math
-import matplotlib.pyplot as plt
+import matplotlib
+matplotlib.use('TkAgg')
+from matplotlib import pyplot as plt
 from test import get_obstacle_array
 from sys import argv
 import model_predictive_speed_and_steer_control as mpsasc
@@ -233,7 +235,7 @@ def main(s, g, img_name):
     #gy = 166.0  # [m]
     sx, sy = s
     gx, gy = g
-    grid_size = 6.0  # [m]
+    grid_size = 8.0  # [m]
     robot_radius = 4.0  # [m]
     # print('yes')
     # set obstacle positions
