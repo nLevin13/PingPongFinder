@@ -21,11 +21,16 @@ from std_msgs.msg import String
 THRESHOLD = .25
 THRESHOLD_RAD = .1
 
+fail_pub = rospy.Publisher('/pong_driver/pong_master/cmd_status', String, queue_size=5)
+
 def turn_naiive(target_frame):
 	pub = rospy.Publisher('robot0/cmd_vel', Twist, queue_size=3)
 	tfBuffer = tf2_ros.Buffer()
 	tfListener = tf2_ros.TransformListener(tfBuffer)
 	r = rospy.Rate(10)
+
+	K1 = .5
+	K2 = .5
 
 	done = False
 	while not done or not rospy.is_shutdown():
@@ -38,8 +43,17 @@ def turn_naiive(target_frame):
 				cmd.linear.x = 0
 				cmd.angular.z = 0
 			else:
+				quat = [transform.transform.rotation.x, transform.transform.rotation.y, transform.transform.rotation.z, transform.transform.rotation.w]
+				euler_err = euler_from_quaternion(quat)
+
+
+				print('rot err: %f', transform.transfor)
+
+
+
 				cmd.angular.z = K2 * transform.transform.translation.y
 
+			print(cmd)
 			pub.publish(cmd)
 
 
@@ -52,9 +66,13 @@ def turn_naiive(target_frame):
 
 def drive_naiive(target_frame):
 	pub = rospy.Publisher('robot0/cmd_vel', Twist, queue_size=3)
+	rospy.sleep(.5)
 	tfBuffer = tf2_ros.Buffer()
 	tfListener = tf2_ros.TransformListener(tfBuffer)
 	r = rospy.Rate(10)
+
+	K1 = .5
+	K2 = .5
 
 	done = False
 	while not done or not rospy.is_shutdown():
@@ -68,8 +86,10 @@ def drive_naiive(target_frame):
 				cmd.angular.z = 0
 				done = True
 			else:
+				print('lin err: %f', transform.transform.translation.x)
 				cmd.linear.x = K1 * transform.transform.translation.x
 
+			print(cmd)
 			pub.publish(cmd)
 
 		except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException):
@@ -77,12 +97,14 @@ def drive_naiive(target_frame):
 			send_failure()
 			done = True
 			pass
-		
+
+
 		rospy.sleep(.1)
 
 
 def drive_PID(target_frame):
 	pub = rospy.Publisher('robot0/cmd_vel', Twist, queue_size=3)
+	rospy.sleep(.5)
 	tfBuffer = tf2_ros.Buffer()
 	tfListener = tf2_ros.TransformListener(tfBuffer)
 	r = rospy.Rate(10)
@@ -102,9 +124,11 @@ def drive_PID(target_frame):
 				cmd.angular.z = 0
 				done = True
 			else:
+				print('err: rad(%f), lin(%f)', transform.transform.translation.y, transform.transform.translation.x)
 				cmd.linear.x = K1 * transform.transform.translation.x
 				cmd.angular.z = K2 * transform.transform.translation.y
-			
+		
+			print(cmd)	
 			pub.publish(cmd)
 
 
@@ -124,10 +148,10 @@ def drive_cmd_callback(drive_cmd):
 		rospy.loginfo("PID")
 		drive_PID(drive_cmd.target_frame)
 	elif drive_cmd.cmd == 1:
-		rostopic.loginfo("TURN")
+		rospy.loginfo("TURN")
 		turn_naiive(drive_cmd.target_frame)
 	elif drive_cmd.cmd == 2:
-		rostopic.loginfo("FWD")
+		rospy.loginfo("FWD")
 		drive_naiive(drive_cmd.target_frame)
 	return
 
@@ -145,16 +169,16 @@ def within_threshold(transform):
 	return math.sqrt(error) < THRESHOLD
 
 def send_failure():
-	pub = rospy.Publisher('/pong_driver/pong_master/cmd_status', String, queue_size=1)
+	global fail_pub
 	msg = String()
 	msg.data = 'Failure'
-	pub.publish(msg)
+	fail_pub.publish(msg)
 
 def send_success():
-	pub = rospy.Publisher('/pong_driver/pong_master/cmd_status', String, queue_size=1)
+	global fail_pub
 	msg = String()
 	msg.data = 'Success'
-	pub.publish(msg)
+	fail_pub.publish(msg)
 
 if __name__ == '__main__':
 	rospy.loginfo("Initializing drive node.")

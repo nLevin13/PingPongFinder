@@ -1,4 +1,5 @@
 #!/usr/bin/env python  
+import time
 import rospy
 import tf
 import tf2_ros
@@ -15,12 +16,13 @@ master_pub = rospy.Publisher('goal_tf_publisher/pong_master/status', String, que
 # status = 1: advance path (don't find new path)
 # status = 2: error
 def callback(tfcmd_msg):
-	return
-	rospy.loginfo('once')
-	print(tfcmd_msg)
+
+	#############################################################################3
+
 	global poses, curr_target
 	status = tfcmd_msg.cmd
 	if status == 0:
+		return
 		start_pose = tfcmd_msg.start
 		if start_pose == None:
 			start_pose = poses[curr_target - 1]
@@ -66,11 +68,20 @@ def test():
 	data = rospy.wait_for_message('/pong_master/goal_tf_publisher/cmd', TFCmd)
 	
 	target = Pose2D()
-	target.x = 2
-	target.y = 2
+	target.x = 5
+	target.y = 2.5
 	target.theta = 0
+	target2 = Pose2D()
+	target2.x = 5
+	target2.y = 5
+	target2.theta = 0
+	target3 = Pose2D()
+	target3.x = 10
+	target3.y = 5
+	target3.theta = 0
 	poses.append(target)
-
+	poses.append(target2)
+	poses.append(target3)
 	
 	send_success()
 
@@ -80,10 +91,15 @@ def test():
 def my_spin():
 	broadcaster = tf2_ros.TransformBroadcaster()
 	static_transformStamped = TransformStamped()
+	old_target = -1
 
+	timeout = float(time.time())
 	while not rospy.is_shutdown():
-		if curr_target >= 0:
-			rospy.loginfo("Publishing a target static transform.")
+		if curr_target >= 0 and float(float(time.time()) - timeout) > 0.1:
+			timeout = float(time.time())
+			if curr_target != old_target:
+				rospy.loginfo("Publishing new target TF")
+				old_target = curr_target
 			static_transformStamped.header.stamp = rospy.Time.now()
 			static_transformStamped.header.frame_id = "map"
 			static_transformStamped.child_frame_id = "target"
@@ -100,7 +116,7 @@ def my_spin():
 			static_transformStamped.transform.rotation.w = quat[3]
 	
 			broadcaster.sendTransform(static_transformStamped)
-		rospy.sleep(0.5)
+		rospy.rostime.wallsleep(0.5)
 
 def send_success():
 	rospy.sleep(.5)

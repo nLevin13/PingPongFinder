@@ -26,6 +26,7 @@ class Status(Enum):
 	DRIVE_PID = 4
 	DETECT = 5
 	UPDATE = 6
+	ADVANCE = 7
 	WAIT = 0
 
 class PongMaster:
@@ -57,9 +58,8 @@ class PongMaster:
 		# When exiting wait, should return to following computed path, via
 		# self.cur_pose_num and self.goal_poses
 		# self.status -> PLAN
-
+		pass
 		# TODO IMPlEMENT WAIT STATE
-		return Status.WAIT
 
 	def plan(self):
 		# Plan out new path to goal pose. Update self.poses. Reset self.cur_pose_num to get index of pose
@@ -75,7 +75,9 @@ class PongMaster:
 		cmd.cmd = 0
 		cmd.image_path = self.map_path
 
-		pub = rospy.Publisher('/pong_master/goal_tf_publisher/cmd', TFCmd, queue_size=1)
+		# pub = rospy.Publisher('/pong_master/goal_tf_publisher/cmd', TFCmd, queue_size=1)
+		pub = self.nav_pub
+
 		rospy.loginfo("Publishing cmd to path planner.")
 		pub.publish(cmd)
 		rospy.loginfo("Waiting for response...")
@@ -111,7 +113,6 @@ class PongMaster:
 			# we go into wait state.
 			self.status = Status.WAIT
 		
-		return Status.TURN
 
 	def drive(self):
 		# Drive forward self.cur_goal.linear.x meters forward.
