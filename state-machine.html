@@ -6,7 +6,7 @@
 -->
 <html>
 	<head>
-		<title>State Machine of PongBot</title>
+		<title>State Machine of PongBot: PongMaster</title>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
 		<link rel="stylesheet" href="assets/css/main.css" />
@@ -41,7 +41,7 @@
 						<!-- Content -->
 							<article id="content">
 								<header>
-									<h2>Finite State Machine</h2>
+									<h2>Finite State Machine: PongMaster</h2>
                                     <p>At the core of PongBot's functionality is the PongMaster node, which is a finite state machine that coordinates communication between navigation, acoustics, obstacle, and drive controller nodes. </p>
 								</header>
 								<a href="#" class="image featured"><img src="images/fsm-hi-res.png" alt="" /></a>
@@ -59,9 +59,11 @@
                                 <h3>Both Drive Routines</h3>
                                 <p>ADVANCE: This state is achieved whenever DRIVE or DRIVE_PID returns a successful response, signifying that we have achieved the current intermediate target pose. When entered, we signify to our navigation node that we need to update our target pose to the next location in our intermediate target array. Upon reaching the final goal pose, ADVANCE returns a SUCCESS flag to PongMaster, signifying goal completion. If we are not at our goal pose, we instead transition to the TURN or DRIVE_PID state, depending on which drive routine is selected.</p>
                                 <h2>Design Tradeoffs</h2>
-                                <p>TODO</p>
+                                <p>Though very complex in implementation, we found that a state machine provided us with the flexibility necessary to test a number of different drive, navigation, and sound simulation controllers. We initially set out to have a greater number of pre-defined states for our robot to operate on. However, due to design complexity, many of these individual states were flattened into more complex states that handled a number of actions. Examples of this include the PLAN and ADVANCE states, which handle a number of different operations to provide us with the appropriate path to follow.</p>
+                                <p>You may also notice that we neglected to include an error state within the above diagrams. Though there does exist a WAIT state in our code which actsa as an error state, we failed to implement routines to correct such errors and continue towards our goal pose.</p>
                                 <h2>FSM Analysis</h2>
-                                <p>TODO</p>
+                                <p>When constructing this FSM, our group found much difficulty coordinating actions between different nodes that PongMaster. However, overcoming these integration issues yielded an efficient routine of actions that our robot could follow to reach a goal pose. By centralizing our FSM within a single node and serparating all other functionality to individual nodes, we were able to "hot-swap" node builds as they were developed in parallel. </p>
+                                <p>Overall, we are extremely satisfied with the state of our PongMaster node. We believe that this FSM was the best, most efficient method of achieving our goals, while maintaining the ability to develop robot features individually. Future implementations of PongMaster would include a greater number of specialized states to increase code complexity and allow for further interchangeability. Lastly, we likely would leverage a developed ROS Finite State Machine package to simplify our implementation with existing frameworks.</p>
 
                             </article>
 
