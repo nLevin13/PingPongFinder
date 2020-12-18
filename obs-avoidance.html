@@ -49,7 +49,11 @@
                                 <p>In the event that an obstacle is detected with LIDAR, a "block" of a size equivalent to our robot's radius is drawn in the map, centered at the estimated location of the obstacle. The file path of this new map is then passed to our navigation node, which re-computes the route between the current pose and the goal pose, given the new map. By ensuring that the obstacle is of the size of the robot, we can ensure that our path planner does not plan a path though the obstructed route. If no obstacle is detected, we simply drive directly forward to the goal pose, and continue with our drive routine.</p>
                                 <p>Because this obstacle detection and avoidance routine is run between the turn and drive stages of this drive controller, we were able to implement a very simple obstacle-detector that detected obstacles immediately ahead. Further implementations of this robot may include full SLAM implementationm, such that obstacles are more accurately drawn on our map and persist between robot uses.</p>
                                 <p>Implementation of this obstacle avoidance routine did not yield the desired results in our simulation experiments. Though the obstacle detector accurately detected obstacles and updated the map, implementing this complex drive routine into our PongMaster proved to be infeasible for our final product. We recognize this as a shortcoming in our project, as we did seek to implement this routine as a primary part of our robotic implementation. Nonetheless, our group learned much about LIDAR and obstacle avoidance through this exploration, and would definitely seek to include a fleshed-out version of this feature in a future implementation. </p>
-							</article>
+                                <h2>Design Tradeoffs</h2>
+                                <p>TODO</p>
+                                <h2>Obstacle Avoidance Routine Analysis</h2>
+                                <p>TODO</p>
+                            </article>
 
 						<div class="row features">
 							<section class="col-4 col-12-narrower feature">
