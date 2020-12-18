@@ -58,28 +58,14 @@
 						<!-- Content -->
 							<article id="content">
 								<header>
-									<h2>No Sidebar</h2>
-									<p>Lorem ipsum dolor sit amet consectetur et sed adipiscing elit
-									dolor neque semper.</p>
+									<h2>Obstacle Avoidance</h2>
+									<p>Because real-life environments are variable and may not correspond accurately to our provided map, we chose to explore a naiive obstacle avoidance routine to ensure that our robot does not get stuck when navigating to our target pose.</p>
 								</header>
 								<a href="#" class="image featured"><img src="images/pic06.jpg" alt="" /></a>
-								<p>Ut sed tortor luctus, gravida nibh eget, volutpat odio. Proin rhoncus, sapien
-								mollis luctus hendrerit, orci dui viverra metus, et cursus nulla mi sed elit. Vestibulum
-								condimentum, mauris a mattis vestibulum, urna mauris cursus lorem, eu fringilla lacus
-								ante non est. Nullam vitae feugiat libero, eu consequat sem. Proin tincidunt neque
-								eros. Duis faucibus blandit ligula, mollis commodo risus sodales at. Sed rutrum et
-								turpis vel blandit. Nullam ornare congue massa, at commodo nunc venenatis varius.
-								Praesent mollis nisi at vestibulum aliquet. Sed sagittis congue urna ac consectetur.</p>
-								<p>Mauris eleifend eleifend felis aliquet ornare. Vestibulum porta velit at elementum
-								gravida nibh eget, volutpat odio. Proin rhoncus, sapien
-								mollis luctus hendrerit, orci dui viverra metus, et cursus nulla mi sed elit. Vestibulum
-								condimentum, mauris a mattis vestibulum, urna mauris cursus lorem, eu fringilla lacus
-								ante non est. Nullam vitae feugiat libero, eu consequat sem. Proin tincidunt neque
-								eros. Duis faucibus blandit ligula, mollis commodo risus sodales at. Sed rutrum et
-								turpis vel blandit. Nullam ornare congue massa, at commodo nunc venenatis varius.
-								Praesent mollis nisi at vestibulum aliquet. Sed sagittis congue urna ac consectetur.</p>
-								<p>Vestibulum pellentesque posuere lorem non aliquam. Mauris eleifend eleifend
-								felis aliquet ornare. Vestibulum porta velit at elementum elementum.</p>
+                                <p>Our robot has the ability to change driving routines between pure PID control and a turn-then-actuate control scheme. Our obstacle detection routine was designed for use within the turn-then-actuate routine. After our robot turns to face our next desired pose, we run a LIDAR-based obstacle detection routine to determine if an unmapped obstacle obstructs the path immediately forward.</p>
+                                <p>In the event that an obstacle is detected with LIDAR, a "block" of a size equivalent to our robot's radius is drawn in the map, centered at the estimated location of the obstacle. The file path of this new map is then passed to our navigation node, which re-computes the route between the current pose and the goal pose, given the new map. By ensuring that the obstacle is of the size of the robot, we can ensure that our path planner does not plan a path though the obstructed route. If no obstacle is detected, we simply drive directly forward to the goal pose, and continue with our drive routine.</p>
+                                <p>Because this obstacle detection and avoidance routine is run between the turn and drive stages of this drive controller, we were able to implement a very simple obstacle-detector that detected obstacles immediately ahead. Further implementations of this robot may include full SLAM implementationm, such that obstacles are more accurately drawn on our map and persist between robot uses.</p>
+                                <p>Implementation of this obstacle avoidance routine did not yield the desired results in our simulation experiments. Though the obstacle detector accurately detected obstacles and updated the map, implementing this complex drive routine into our PongMaster proved to be infeasible for our final product. We recognize this as a shortcoming in our project, as we did seek to implement this routine as a primary part of our robotic implementation. Nonetheless, our group learned much about LIDAR and obstacle avoidance through this exploration, and would definitely seek to include a fleshed-out version of this feature in a future implementation. </p>
 							</article>
 
 						<div class="row features">
@@ -88,10 +74,9 @@
 									<a href="#" class="image featured"><img src="images/pic03.jpg" alt="" /></a>
 								</div>
 								<header>
-									<h3>Dolor sit consequat magna</h3>
+									<h3>Old map</h3>
 								</header>
-								<p>Lorem ipsum dolor sit amet consectetur et sed adipiscing elit. Curabitur
-								vel sem sit dolor neque semper magna lorem ipsum.</p>
+								<p>As you can see, no obstacles exist in this map aside from the surrounding walls and minor features.</p>
 								<ul class="actions">
 									<li><a href="#" class="button">Elevate my awareness</a></li>
 								</ul>
@@ -101,10 +86,9 @@
 									<a href="#" class="image featured"><img src="images/pic04.jpg" alt="" /></a>
 								</div>
 								<header>
-									<h3>Dolor sit consequat magna</h3>
+									<h3>Real map</h3>
 								</header>
-								<p>Lorem ipsum dolor sit amet consectetur et sed adipiscing elit. Curabitur
-								vel sem sit dolor neque semper magna lorem ipsum.</p>
+								<p></p>
 								<ul class="actions">
 									<li><a href="#" class="button">Elevate my awareness</a></li>
 								</ul>
@@ -114,10 +98,9 @@
 									<a href="#" class="image featured"><img src="images/pic05.jpg" alt="" /></a>
 								</div>
 								<header>
-									<h3>Dolor sit consequat magna</h3>
+									<h3>Updated map with obstacle</h3>
 								</header>
-								<p>Lorem ipsum dolor sit amet consectetur et sed adipiscing elit. Curabitur
-								vel sem sit dolor neque semper magna lorem ipsum.</p>
+								<p>Here, we can see the updated map with an obstacle roughly the size of our robot's base.</p>
 								<ul class="actions">
 									<li><a href="#" class="button">Elevate my awareness</a></li>
 								</ul>
@@ -130,7 +113,7 @@
 				<div id="footer-wrapper">
 					<div id="footer" class="container">
 						<header class="major">
-							<h2>Euismod aliquam vehicula lorem</h2>
+							<h2>Obstacle Avoidance</h2>
 							<p>Lorem ipsum dolor sit amet consectetur et sed adipiscing elit. Curabitur vel sem sit<br />
 							dolor neque semper magna lorem ipsum feugiat veroeros lorem ipsum dolore.</p>
 						</header>
