@@ -58,31 +58,26 @@
 						<!-- Content -->
 							<article id="content">
 								<header>
-									<h2>No Sidebar</h2>
-									<p>Lorem ipsum dolor sit amet consectetur et sed adipiscing elit
-									dolor neque semper.</p>
+									<h2>Finite State Machine</h2>
+                                    <p>At the core of PongBot's functionality is the PongMaster node, which is a finite state machine that coordinates communication between navigation, acoustics, obstacle, and drive controller nodes. </p>
 								</header>
-								<a href="#" class="image featured"><img src="images/pic06.jpg" alt="" /></a>
-								<p>Ut sed tortor luctus, gravida nibh eget, volutpat odio. Proin rhoncus, sapien
-								mollis luctus hendrerit, orci dui viverra metus, et cursus nulla mi sed elit. Vestibulum
-								condimentum, mauris a mattis vestibulum, urna mauris cursus lorem, eu fringilla lacus
-								ante non est. Nullam vitae feugiat libero, eu consequat sem. Proin tincidunt neque
-								eros. Duis faucibus blandit ligula, mollis commodo risus sodales at. Sed rutrum et
-								turpis vel blandit. Nullam ornare congue massa, at commodo nunc venenatis varius.
-								Praesent mollis nisi at vestibulum aliquet. Sed sagittis congue urna ac consectetur.</p>
-								<p>Mauris eleifend eleifend felis aliquet ornare. Vestibulum porta velit at elementum
-								gravida nibh eget, volutpat odio. Proin rhoncus, sapien
-								mollis luctus hendrerit, orci dui viverra metus, et cursus nulla mi sed elit. Vestibulum
-								condimentum, mauris a mattis vestibulum, urna mauris cursus lorem, eu fringilla lacus
-								ante non est. Nullam vitae feugiat libero, eu consequat sem. Proin tincidunt neque
-								eros. Duis faucibus blandit ligula, mollis commodo risus sodales at. Sed rutrum et
-								turpis vel blandit. Nullam ornare congue massa, at commodo nunc venenatis varius.
-								Praesent mollis nisi at vestibulum aliquet. Sed sagittis congue urna ac consectetur.</p>
-								<p>Vestibulum pellentesque posuere lorem non aliquam. Mauris eleifend eleifend
-								felis aliquet ornare. Vestibulum porta velit at elementum elementum.</p>
-							</article>
+								<a href="#" class="image featured"><img src="images/fsm.png" alt="" /></a>
+                                <p>Our PongMaster has a number of states described below to coordinate robot functionality. These states transition to others, forming a loop that terminates upon achieving the goal pose.</p>
+                                <h3>Both Drive Routines</h3>
+                                <p>LISTEN: This is the first state our robot enters. It listens for our acoustics node to publish a target pose after the acoustics simulation node has been run. The LISTEN state transitions directly into our PLAN state. </p>
+                                <p>PLAN: This state handles communication between PongMaster and our navigation node. It passes vital data such as our current and target poses to the navigation node, as well as the file path of our current map. If we are operating with our obstacle avoidance routine, we transition to the TURN state. If we are operating on pure PID, we transition to the DRIVE_PID state.</p>
+                                <h3>Obstacle Avoidance Routine:</h3>
+                                <p>TURN: We only access this state when running our obstacle-avoidance routine. This state handles turning-on-a-dime until our robot is facing the next target pose. TURN exclusively transitions into the DETECT state.</p>
+                                <p>DETECT: This state runs our obstacle detection algorithm, searching for obstacles directly in front of the robot. In the event that an obstacle is detected, we enter the UPDATE state.</p>
+                                <p>UPDATE: We are in this state if an obstacle was detected in DETECT. This state handles updating our map with the location of the obstacle, as well as making a call to the navigation server to get the shortest possible route across the new map. Given a successful UPDATE, we transition back into the TURN state within the obstacle avoidance routine.</p>
+                                <p>DRIVE: This state is entered if NO obstacle is detected in DETECT state, thus, signifying a clear path forward to the target pose. Once the target pose is achieved, we enter the ADVANCE state.</p>
+                                <h3>PID Drive Routine</h3>
+                                <p>DRIVE_PID: This state handles pure PID drive controls between our current and target locations. Upon achieving the target pose, we enter the ADVANCE state</p>
+                                <h3>Both Drive Routines</h3>
+                                <p>ADVANCE: This state is achieved whenever DRIVE or DRIVE_PID returns a successful response, signifying that we have achieved the current intermediate target pose. When entered, we signify to our navigation node that we need to update our target pose to the next location in our intermediate target array. Upon reaching the final goal pose, ADVANCE returns a SUCCESS flag to PongMaster, signifying goal completion. If we are not at our goal pose, we instead transition to the TURN or DRIVE_PID state, depending on which drive routine is selected.</p>
+                            </article>
 
-						<div class="row features">
+						<!-- <div class="row features">
 							<section class="col-4 col-12-narrower feature">
 								<div class="image-wrapper first">
 									<a href="#" class="image featured"><img src="images/pic03.jpg" alt="" /></a>
@@ -122,7 +117,7 @@
 									<li><a href="#" class="button">Elevate my awareness</a></li>
 								</ul>
 							</section>
-						</div>
+                        </div> -->
 					</div>
 				</div>
 
