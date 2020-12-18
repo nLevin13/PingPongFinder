@@ -44,7 +44,7 @@
 									</li>
 									<li><a href="left-sidebar.html">Left Sidebar</a></li>
 									<li class="break"><a href="right-sidebar.html">Right Sidebar</a></li>
-									<li><a href="no-sidebar.html">No Sidebar</a></li>
+									<li><a href="acoustics.html">Acoustics</a></li>
 								</ul>
 							</nav>
 
@@ -58,18 +58,14 @@
 						<!-- Content -->
 							<article id="content">
 								<header>
-									<h2>No Sidebar</h2>
-									<p>Lorem ipsum dolor sit amet consectetur et sed adipiscing elit
-									dolor neque semper.</p>
+									<h2>Acoustics</h2>
+									<p>Our first step in sound-based retrieval is to localize our audio source. This involves retrieving and processing microphone data, mathematically locating a position, and providing meaningful error estimates.</p>
 								</header>
 								<a href="#" class="image featured"><img src="images/pic06.jpg" alt="" /></a>
-								<p>Ut sed tortor luctus, gravida nibh eget, volutpat odio. Proin rhoncus, sapien
-								mollis luctus hendrerit, orci dui viverra metus, et cursus nulla mi sed elit. Vestibulum
-								condimentum, mauris a mattis vestibulum, urna mauris cursus lorem, eu fringilla lacus
-								ante non est. Nullam vitae feugiat libero, eu consequat sem. Proin tincidunt neque
-								eros. Duis faucibus blandit ligula, mollis commodo risus sodales at. Sed rutrum et
-								turpis vel blandit. Nullam ornare congue massa, at commodo nunc venenatis varius.
-								Praesent mollis nisi at vestibulum aliquet. Sed sagittis congue urna ac consectetur.</p>
+								<h3>Audio Simulation</h3>
+								<p>We decided to get our data for our PongFinder in a simulated environment. For this we used pyroomacoustics, an 3D acoustic simulation package based in python. This allows us to create a simple shoebox type room given certain parameters (dimensions, wall materials, etc.). We can then place sources (through audio files) and sinks (microphones) throughout our room. Although the simulation occurs in 3D, we can place our sources and sinks all close to the floor, in order to reduce our future approach for mathematical sourcing to a 2D problem.</p>
+								<p>Once we're finished setting up our room, we can run our simulation. This represents the given audio file playing at it's location within the room and the recording of that audio by each microphone. This recording can be represented by an array of intensities over a period of time and it is visualized below.</p>
+								<h3>Source Localization</h3>
 								<p>Mauris eleifend eleifend felis aliquet ornare. Vestibulum porta velit at elementum
 								gravida nibh eget, volutpat odio. Proin rhoncus, sapien
 								mollis luctus hendrerit, orci dui viverra metus, et cursus nulla mi sed elit. Vestibulum
