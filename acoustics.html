@@ -46,7 +46,7 @@
 								</header>
 								<h3>Assumptions</h3>
 								<p>Insert assumptions here.</p>
-								<a href="#" class="image centered"><img src="images/room_vis.png" alt="" style="width:632px;height:474px;"/></a>
+								<a href="#" class="image centered"><img src="images/room_vis.PNG" alt="" style="width:632px;height:474px;"/></a>
 								<h3>Audio Simulation</h3>
 								<p>We decided to get our data for our PongFinder in a simulated environment. For this we used pyroomacoustics, an 3D acoustic simulation package based in python. This allows us to create a simple shoebox type room given certain parameters (dimensions, wall materials, etc.). We can then place sources (through audio files) and sinks (microphones) throughout our room. Although the simulation occurs in 3D, we can place our sources and sinks all close to the floor, in order to reduce our future approach for mathematical sourcing to a 2D problem. Our room can be seen in the above figure, with our audio source playing on the floor in the middle of the room, with 4 microphones, one at each corner of the room.</p>
 								<p>Once we're finished setting up our room, we can run our simulation. This represents the given audio file playing at it's location within the room and the recording of that audio by each microphone. This recording can be represented by an array of intensities over a period of time and it is visualized below. The detection of important peaks can be seen as the red crosses.</p>
