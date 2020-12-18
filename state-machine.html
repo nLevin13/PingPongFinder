@@ -61,10 +61,10 @@
 									<h2>Finite State Machine</h2>
                                     <p>At the core of PongBot's functionality is the PongMaster node, which is a finite state machine that coordinates communication between navigation, acoustics, obstacle, and drive controller nodes. </p>
 								</header>
-								<a href="#" class="image featured"><img src="images/fsm.png" alt="" /></a>
+								<a href="#" class="image featured"><img src="images/fsm-hi-res.png" alt="" /></a>
                                 <p>Our PongMaster has a number of states described below to coordinate robot functionality. These states transition to others, forming a loop that terminates upon achieving the goal pose.</p>
                                 <h3>Both Drive Routines</h3>
-                                <p>LISTEN: This is the first state our robot enters. It listens for our acoustics node to publish a target pose after the acoustics simulation node has been run. The LISTEN state transitions directly into our PLAN state. </p>
+                                <p>LISTEN: This is the first state our robot enters. It listens for our acoustics node to publish a target pose after the acoustics simulation has concluded. The LISTEN state transitions directly into our PLAN state. </p>
                                 <p>PLAN: This state handles communication between PongMaster and our navigation node. It passes vital data such as our current and target poses to the navigation node, as well as the file path of our current map. If we are operating with our obstacle avoidance routine, we transition to the TURN state. If we are operating on pure PID, we transition to the DRIVE_PID state.</p>
                                 <h3>Obstacle Avoidance Routine:</h3>
                                 <p>TURN: We only access this state when running our obstacle-avoidance routine. This state handles turning-on-a-dime until our robot is facing the next target pose. TURN exclusively transitions into the DETECT state.</p>
