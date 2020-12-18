@@ -58,6 +58,11 @@
                                 <p>DRIVE_PID: This state handles pure PID drive controls between our current and target locations. Upon achieving the target pose, we enter the ADVANCE state</p>
                                 <h3>Both Drive Routines</h3>
                                 <p>ADVANCE: This state is achieved whenever DRIVE or DRIVE_PID returns a successful response, signifying that we have achieved the current intermediate target pose. When entered, we signify to our navigation node that we need to update our target pose to the next location in our intermediate target array. Upon reaching the final goal pose, ADVANCE returns a SUCCESS flag to PongMaster, signifying goal completion. If we are not at our goal pose, we instead transition to the TURN or DRIVE_PID state, depending on which drive routine is selected.</p>
+                                <h2>Design Tradeoffs</h2>
+                                <p>TODO</p>
+                                <h2>FSM Analysis</h2>
+                                <p>TODO</p>
+
                             </article>
 
 						<!-- <div class="row features">
