@@ -61,48 +61,59 @@
 													</header>
 													<p>A variant of the A Star shortest paths algorithm is used to get the shortest path
 														from the robot’s current location to the predicted sound source location given by
-														the acoustics system.</p>
+														the acoustics system. They're represented here by a green dot and an X respectively.</p>
 												</section>
 												<section class="col-6 col-12-narrower feature">
 														<img src="images/robodrivingdemo.gif" alt="" />
 													<header>
 														<h2>PID Actuation and Path Tracking</h2>
 													</header>
-													<p>Lorem ipsum dolor sit amet consectetur et sed adipiscing elit. Curabitur vel
-													sem sit dolor neque semper magna. Lorem ipsum dolor sit amet consectetur et sed
-													adipiscing elit. Curabitur vel sem sit.</p>
+													<p>A PID controller, parameterized by the translation and rotation errors between
+														the robot's current state and goal state, is used to move the robot from its
+													  current location to the sound source.</p>
 												</section>
 											</div>
 										</div>
 									</div>
+									<p>The final path given by the A Star algorithm shown above is essentially a list of straight paths
+											connected together by corner points. This list of corner points is what gets sent between the
+											path finding and PID controller ROS nodes. For each corner point, the robot will use the PID
+											controller to drive to it, and make a smooth transition between the previous straight shot and
+											the next one. This is what gives the stop/start behavior seen in the video on the right. This
+											sequential completion was made to be modular with the FSM; for example, splitting up the path
+											into many smaller paths lessens the difficulty of implementing a basic obstacle detection.</p>
 						<header>
 							<h2>Assumptions and Tradeoffs</h2>
-							<p>Intro to Assumptions and Tradeoffs</p>
 						</header>
 						<div class="row features">
 							<section class="col-4 col-12-narrower feature">
-									<img src="images/pic03.jpg" alt="" />
+									<a href="https://github.com/AtsushiSakai/PythonRobotics#dynamic-window-approach" class="image featured"><img src="images/dynamicplanning.gif" alt="" style="width:316px;height:296px;" /></a>
 								<header>
 									<h3>Preloading the Map</h3>
 								</header>
-								<p>Lorem ipsum dolor sit amet consectetur et sed adipiscing elit. Curabitur
-								vel sem sit dolor neque semper magna lorem ipsum.</p>
+								<p>An assumption we had was that the base map (without extra obstacles) would be preloaded onto
+										the robot before it begins its collection tasks. Under a lot of circumstances, however, this
+										might not be the case, so dynamic path planning would be an ideal feature to add.</p>
 							</section>
 							<section class="col-4 col-12-narrower feature">
-									<img src="images/pic04.jpg" alt="" />
+									<a href="https://github.com/AtsushiSakai/PythonRobotics#model-predictive-speed-and-steering-control" class="image featured"><img src="images/steering.gif" alt="" style="width:316px;height:296px;" /></a>
 								<header>
 									<h3>Corner to Corner</h3>
 								</header>
-								<p>Lorem ipsum dolor sit amet consectetur et sed adipiscing elit. Curabitur
-								vel sem sit dolor neque semper magna lorem ipsum.</p>
+								<p>With our FSM, we had to trade smooth driving with modularity, however, this is something that
+										could be easily fixed with a better driving control such as this one. Both the above and left gif
+										can be found on this <a href="https://github.com/AtsushiSakai/PythonRobotics">PythonRobotics</a> repo.</p>
 							</section>
 							<section class="col-4 col-12-narrower feature">
-									<img src="images/pic05.jpg" alt="" />
+									<img src="images/toolittleresolution.png" alt="" style="width:316px;height:296px;" />
 								<header>
-									<h3>Dynamic Planning</h3>
+									<h3>A Star Tradeoffs</h3>
 								</header>
-								<p>Lorem ipsum dolor sit amet consectetur et sed adipiscing elit. Curabitur
-								vel sem sit dolor neque semper magna lorem ipsum.</p>
+								<p>Many optimizations were made for the A Star algorithm to work as quickly as it does, such as
+										decreasing the resolution of the obstacle array (points which define the walls of the map).
+										Above is the result of too much image resolution reduction. We had to find a nice balance
+										between reducing the number of points A Star had to traverse over, and keeping the obstacles
+										well defined.</p>
 							</section>
 						</div>
 					</div>
