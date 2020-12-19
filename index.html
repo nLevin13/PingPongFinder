@@ -48,8 +48,15 @@
 				<div class="wrapper">
 					<div class="container" id="main">
 						<article id="content">
-							<h2 class="feature center">Our Goals</h2>
-							<p>Things</p>
+							<h2 class="feature center">Our Goal</h2>
+							<br>
+							<p>To build a system that locates an indoor audio source and drives to it for retrieval. The concept of locating and retrieving items based on wave propagations can be a base template for products in many different fields and applications. Inspired by the idea to automate ping pong ball retrieval. Our main problems to solve are:</p>
+							<ul>
+								<li>Triangulation of sound wave emitting object</li>
+								<li>Path finding to the source location</li>
+								<li>Stable driving towards the source location</li>
+								<li>On-the-fly obstacle avoidance</li>
+							</ul>
 							<br>
 							<hr>
 							<br>
@@ -71,7 +78,14 @@
 							<hr>
 							<br>
 							<h2 class = "feature center">Results</h2>
-							<p>Project things</p>
+							<br>
+							<p>All parts of our design work separately and most of our processes are integrated together. For example, the acoustics system locates and provides its predicted location to the robot. The robot waits for a signal from the acoustics system, then autonomously calculates a path and drives towards the goal. This is all handled in the background by the FSM.</p>
+							<p>The one portion which had required a lot more involvement than we originally thought was the obstacle detection and avoidance, which isn't fully integrated into our final product. However, it does work separately, as shown <a href="obs-avoidance.html"></a></p>
+							<p>We discuss challenges and difficulties for each portion of the implementation individually, within their respective <a href="#">subpages</a>.</p>
+							<br>
+							<hr>
+							<br>
+							<h2 class="feature center">Impact</h2>
 							<br>
 							<hr>
 							<br>
