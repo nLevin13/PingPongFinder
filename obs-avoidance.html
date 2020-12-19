@@ -42,10 +42,11 @@
 							<article id="content">
 								<header>
 									<h2>Obstacle Avoidance</h2>
-									<p>Because real-life environments are variable and may not correspond accurately to our provided map, we chose to explore a naiive obstacle avoidance routine to ensure that our robot does not get stuck when navigating to our target pose.</p>
+									<p>Because real-life environments are variable and may not correspond accurately to our provided map, we chose to explore a naive obstacle avoidance routine to ensure that our robot does not get stuck when navigating to our target pose.</p>
 								</header>
                                 <h2>Where are the unmapped obstacles?</h2>
-                                <a href="#" class="image featured"><img src="images/sparse-obstacles-avoid.png" alt="" /></a>
+								<br>
+                                <a href="#" class="image featured"><img src="images/sparse-obstacles-avoid.png" alt="" style="width:519px;height:500px;"/></a>
                                 <p>Our robot has the ability to change driving routines between pure PID control and a turn-then-actuate control scheme. Our obstacle detection routine was designed for use within the turn-then-actuate routine. After our robot turns to face our next desired pose, we run a LIDAR-based obstacle detection routine to determine if an unmapped obstacle obstructs the path immediately forward.</p>
                                 <p>In the event that an obstacle is detected with LIDAR, a "block" of a size equivalent to our robot's radius is drawn in the map, centered at the estimated location of the obstacle. The file path of this new map is then passed to our navigation node, which re-computes the route between the current pose and the goal pose, given the new map. By setting the obstacle to the size of the robot, we can ensure that our path planner does not plan a path though the obstructed route. If no obstacle is detected, we simply drive directly forward to the goal pose, and continue with our drive routine.</p>
                                 <p>Because this obstacle detection and avoidance routine is run between the turn and drive stages of this drive controller, we were able to implement a very simple obstacle-detector that detected obstacles immediately ahead. Further implementations of this robot may include the use of a full SLAM library, such that obstacles are more accurately drawn on our map and persist between robot uses.</p>
