@@ -36,16 +36,11 @@
 					<!-- Hero -->
 						<section id="hero" class="container">
 							<header>
-								<h2>Telephasic is a responsive
-								<br />
-								site template by <a href="http://html5up.net">HTML5 UP</a></h2>
+								<h2>PongBot uses sound to locate and travel to objects of interest in an obstacle-ridden room.
+								</h2>
 							</header>
-							<p>Designed and built by <a href="http://twitter.com/ajlkn">AJ</a> and released for free under
-							<br />
-							the <a href="http://html5up.net/license">Creative Commons Attribution 3.0 license</a>.</p>
-							<ul class="actions">
-								<li><a href="#" class="button">Get this party started</a></li>
-							</ul>
+							<p>Programmed by Nir Levin, Kyle Tucker, & Jay Garg.</p>
+							<h3><a href="https://github.com/nLevin13/PingPongFinder">The PongBot Repository</a></h3>
 						</section>
 
 				</div>
@@ -55,6 +50,17 @@
 						<article id="content">
 							<h2 class="feature center">Our Goals</h2>
 							<p>Things</p>
+							<br>
+							<hr>
+							<br>
+							<h2 class="feature center">Design & Implementation</h2>
+							<br>
+							<ul class="feature center">
+								<li>Our system simulates and listens for an audio source which it then locates, detailed on <a href="acoustics.html">Acoustics</a></li>
+								<li>PongBot uses a path planning algorithm and a PID controller to drive to it's destination, found on <a href="navigation.html">Navigation</a></li>
+								<li>While driving along it's path, it makes adjustments for any unexpected obstructions by implementing <a href="obs-avoidance.html">Obstacle Avoidance</a></li>
+								<li>The communication between our multiple processes is integrated with a <a href="acoustics.html">Finite State Machine</a></li>
+							</ul>
 							<br>
 							<hr>
 							<br>
@@ -78,130 +84,54 @@
 								<div class="image-wrapper first">
 									<a href="#" class="image featured"><img src="images/nir.png" alt="" /></a>
 								</div>
-								<p>Nir Levin is a third-year EECS student from San Diego, California. He specializes and is interested in pursuing computer vision, especially in autonomous underwater vehicles. He enjoys some casual mountain biking and hiking in his free time. He focused on PingBot's navigation ability, including path finding and path tracking. nirlevin@</p>
+								<p>Nir Levin is a third-year EECS student from San Diego, California. He specializes and is interested in pursuing computer vision, especially in autonomous underwater vehicles. He enjoys some casual mountain biking and hiking in his free time. He focused on PongBot's navigation ability, including path finding and path tracking.
+								<br>
+								<br>
+								nirlevin@berkeley.edu</p>
+								<ul class="actions major">
+									<li><a href="https://www.linkedin.com/in/nir-levin-cal/" target="_blank" class="button" style="padding:24px"><img src="images/linkedin-logo.png" style="width:50px;height:50px;"></a></li>
+								</ul>
+								<ul class="actions major">
+									<li><a href="https://github.com/nLevin13" target="_blank" class="button" style="padding:17px"><img src="images/github-logo.png" style="width:60px;height:60px;"></a></li>
+								</ul>
 							</section>
 							<section class="col-4 col-12-narrower feature">
 								<div class="image-wrapper">
 									<a href="#" class="image featured"><img src="images/kyle.png" alt="" /></a>
 								</div>
-                                <p>Kyle Tucker is a fourth-year EECS student from Chula Vista, California. He has experience with autonomous robotic vehicles, and is deeply passionate about the game Super Smash Bros Melee (2001). He focused on the FSM and Obstacle Avoidance nodes within PongBot. kyletucker@</p>
+                                <p>Kyle Tucker is a fourth-year EECS student from Chula Vista, California. He has experience with autonomous robotic vehicles, and is deeply passionate about the game Super Smash Bros Melee (2001). He focused on the FSM and Obstacle Avoidance nodes within PongBot.
+								<br>
+								<br>
+								<br>
+								kyletucker@berkeley.edu</p>
+								<ul class="actions major">
+									<li><a href="https://www.linkedin.com/in/kylemtucker/" target="_blank" class="button" style="padding:24px"><img src="images/linkedin-logo.png" style="width:50px;height:50px;"></a></li>
+								</ul>
+								<ul class="actions major">
+									<li><a href="https://github.com/kylemtucker" target="_blank" class="button" style="padding:17px"><img src="images/github-logo.png" style="width:60px;height:60px;"></a></li>
+								</ul>
 							</section>
 							<section class="col-4 col-12-narrower feature">
 								<div class="image-wrapper">
 									<a href="#" class="image featured"><img src="images/jay.jpg" alt="" /></a>
 								</div>
-								<p>Lorem ipsum dolor sit amet consectetur et sed adipiscing elit. Curabitur
-								vel sem sit dolor neque semper magna lorem ipsum.</p>
+								<p>Jay Garg is a fourth year Astrophysics student <br> with a minor in Mechanical Engineering <br>from Los Angeles, California. <br> Aside from job hunting, he enjoys going outdoors and playing guitar. He focused on the acoustics simulations and audio triangulation functionality within the PongBot System.
+								<br>
+								<br>
+								jgarg20@berkeley.edu</p>
+								<ul class="actions major">
+									<li><a href="https://www.linkedin.com/in/jay-garg/" target="_blank" class="button" style="padding:24px"><img src="images/linkedin-logo.png" style="width:50px;height:50px;"></a></li>
+								</ul>
+								<ul class="actions major">
+									<li><a href="https://github.com/JayRGarg" target="_blank" class="button" style="padding:17px"><img src="images/github-logo.png" style="width:60px;height:60px;"></a></li>
+								</ul>
 							</section>
 						</div>
-						<ul class="actions major">
-							<li><a href="#" class="button">Elevate my awareness</a></li>
-						</ul>
 					</section>
 				</div>
 						</article>
 					</div>
 				</div>
-			
-			<!-- Features 1 -->
-				<div class="wrapper">
-					<div class="container">
-						<div class="row">
-							<section class="col-6 col-12-narrower feature">
-								<div class="image-wrapper first">
-									<a href="#" class="image featured first"><img src="images/pic01.jpg" alt="" /></a>
-								</div>
-								<header>
-									<h2>Semper magna neque vel<br />
-									adipiscing curabitur</h2>
-								</header>
-								<p>Lorem ipsum dolor sit amet consectetur et sed adipiscing elit. Curabitur vel
-								sem sit dolor neque semper magna. Lorem ipsum dolor sit amet consectetur et sed
-								adipiscing elit. Curabitur vel sem sit.</p>
-								<ul class="actions">
-									<li><a href="#" class="button">Elevate my awareness</a></li>
-								</ul>
-							</section>
-							<section class="col-6 col-12-narrower feature">
-								<div class="image-wrapper">
-									<a href="#" class="image featured"><img src="images/pic02.jpg" alt="" /></a>
-								</div>
-								<header>
-									<h2>Amet lorem ipsum dolor<br />
-									sit consequat magna</h2>
-								</header>
-								<p>Lorem ipsum dolor sit amet consectetur et sed adipiscing elit. Curabitur vel
-								sem sit dolor neque semper magna. Lorem ipsum dolor sit amet consectetur et sed
-								adipiscing elit. Curabitur vel sem sit.</p>
-								<ul class="actions">
-									<li><a href="#" class="button">Elevate my awareness</a></li>
-								</ul>
-							</section>
-						</div>
-					</div>
-				</div>
-
-			<!-- Promo -->
-				<div id="promo-wrapper">
-					<section id="promo">
-						<h2>Neque semper magna et lorem ipsum adipiscing</h2>
-						<a href="#" class="button">Breach the thresholds</a>
-					</section>
-				</div>
-
-			<!-- Footer -->
-				<div id="footer-wrapper">
-					<div id="footer" class="container">
-						<header class="major">
-							<h2>Euismod aliquam vehicula lorem</h2>
-							<p>Lorem ipsum dolor sit amet consectetur et sed adipiscing elit. Curabitur vel sem sit<br />
-							dolor neque semper magna lorem ipsum feugiat veroeros lorem ipsum dolore.</p>
-						</header>
-						<div class="row">
-							<section class="col-6 col-12-narrower">
-								<form method="post" action="#">
-									<div class="row gtr-50">
-										<div class="col-6 col-12-mobile">
-											<input name="name" placeholder="Name" type="text" />
-										</div>
-										<div class="col-6 col-12-mobile">
-											<input name="email" placeholder="Email" type="text" />
-										</div>
-										<div class="col-12">
-											<textarea name="message" placeholder="Message"></textarea>
-										</div>
-										<div class="col-12">
-											<ul class="actions">
-												<li><input type="submit" value="Send Message" /></li>
-												<li><input type="reset" value="Clear form" /></li>
-											</ul>
-										</div>
-									</div>
-								</form>
-							</section>
-							<section class="col-6 col-12-narrower">
-								<div class="row gtr-0">
-									<ul class="divided icons col-6 col-12-mobile">
-										<li class="icon brands fa-twitter"><a href="#"><span class="extra">twitter.com/</span>untitled</a></li>
-										<li class="icon brands fa-facebook-f"><a href="#"><span class="extra">facebook.com/</span>untitled</a></li>
-										<li class="icon brands fa-dribbble"><a href="#"><span class="extra">dribbble.com/</span>untitled</a></li>
-									</ul>
-									<ul class="divided icons col-6 col-12-mobile">
-										<li class="icon brands fa-instagram"><a href="#"><span class="extra">instagram.com/</span>untitled</a></li>
-										<li class="icon brands fa-youtube"><a href="#"><span class="extra">youtube.com/</span>untitled</a></li>
-										<li class="icon brands fa-pinterest"><a href="#"><span class="extra">pinterest.com/</span>untitled</a></li>
-									</ul>
-								</div>
-							</section>
-						</div>
-					</div>
-					<div id="copyright" class="container">
-						<ul class="menu">
-							<li>&copy; Untitled. All rights reserved.</li><li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
-						</ul>
-					</div>
-				</div>
-
 		</div>
 
 		<!-- Scripts -->
