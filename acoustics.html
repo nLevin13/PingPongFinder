@@ -64,10 +64,10 @@
 								<a href="#" class="image centered"><img src="images/locator1.gif" alt="" style="width:506px;height:500px;"/></a>
 								<p>Using this iterative process does come with it's challenges. For each iteration, our goal is to find the intersections of each function if there are any. These intersections represent possible point sources, but since our signal data is never 100% perfect or continuous, we generally can't get one intersection for all functions. So our solution is to use a custom gradient function to minimize the area covered by the polygon created by connecting the intersections. The reason we need to create a customized function is that each case varies in how the intersections approach the point. The case below shows a point source slightly away from the center. We can see that the distance visualised from the left microphones are smaller than the right microphones, since each circle's size is proportional to the time taken for the sound to travel. This results in the intersections between the top-left and bottom-left microphones to take longer to appear in the room compare to the other intersections. This effect is exagerrated more when the sources are closer to the walls and it required more careful iteration to get to our source. Overiteration was also a problem, if we accidently iterated over our source location, we would get extra intersections that aren't physically possible. The customisability of our own naive gradient function gave us the ability to work around these problems while also giving us the option to account for errors by a microphone or even accounting for additional microphones. We were able to localize all sources within approximately a 0.1 x 0.1 m^2 area. </p>
 								<a href="#" class="image centered"><img src="images/locator2.gif" alt="" style="width:521px;height:480px;"/></a>
-								<h3>Simulation Tradeoffs</h3>
+								<h2>Simulation Tradeoffs</h2>
 								<p>Arguably the biggest decision we made for developing audio source triangulation was using audio simulation software instead of actual hardware. By choosing a simulated environment, we are deciding not to take into account possible issues we would face when transitioning to hardware. However for the scope of this project, using simulations was definitely worth it, because it allowed for repeated testing and the development of a functional triangulation method without having to worry about the physical elements. Nevertheless, when considering next steps in our work, it is important to at least perform occasional tests with hardware as our backend functionality progresses, so that we can address critical issues as they come. We can perform these tests as we progress with topics that are listed below. </p>
-								<h3>Future Considerations</h3>
-								<h4>Losing Our Assumptions</h4>
+								<h2>Future Considerations</h2>
+								<h4>Losing Our Assumptions -</h4>
 								<p>A large portion of future work will involve addressing issues regarding our assumptions, so that we can expand into working in more realistic environments.</p>
 								<ul>
 									<li>Reverb is additional noise that comes from echoes in our environment and it is the most important real world effect we need to take into account.</li>
@@ -81,7 +81,7 @@
 									<li>Physical Environment</li>
 									<li style="margin-left:2em">As previously mentioned, transitioning to testing with hardware in real environments as we add functionality is critical.</li>
 								</ul>
-								<h4>Expanding our Analysis</h4>
+								<h4>Expanding our Analysis -</h4>
 								<p>While dealing with the issues with constrained environments, we can also expand on the algorithms and tools we use after we have obtained our signals. This involves creating custom algorithms to more appropriately track our errors, using Fourier Analysis to isolate our desired audio sources, and even incorporating Machine Learning in our triangulation methods. Our ultimate goals are to localize an audio source in any situation without any constraints on conditions and without having to customize our algoritms for each individual environment, and as you can see, there are many directions we can take this in!</p>
 							</article>
 					</div>
