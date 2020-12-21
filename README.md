@@ -3,4 +3,4 @@
 
 Dependencies: \
 [Path Finding](https://github.com/AtsushiSakai/PythonRobotics) \
-[Pyroomacoustics](https://github.com/LCAV/pyroomacoustics)
+[Acoustics Simulation](https://github.com/LCAV/pyroomacoustics)
